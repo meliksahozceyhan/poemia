@@ -20,7 +20,7 @@ export class WinstonLoggerService implements LoggerService {
       transports: [
         new transports.MongoDB({
           db: process.env.MONGO_URI,
-          dbName: 'log',
+          dbName: 'poemia',
           format: combine(timestamp(), json(), format.metadata()),
           level: 'info',
           label: CATEGORY,
@@ -29,16 +29,6 @@ export class WinstonLoggerService implements LoggerService {
             useUnifiedTopology: true
           }
         })
-        // new transports.Console({
-        //   level: 'info',
-        //   format: combine(
-        //     label({ label: CATEGORY }),
-        //     timestamp(),
-        //     customFormat,
-        //     colorize({ all: true, colors: { info: 'yellow' } }),
-        //     format.metadata({ key: 'metadata' })
-        //   )
-        // })
       ]
     })
   }

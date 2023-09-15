@@ -4,7 +4,7 @@
   "editor.tabSize": 2,
   "prettier.useTabs": true,
   "editor.rulers": [150],
-  "window.title": "NestJS Playground",
+  "window.title": "Poemia",
   "editor.fontSize": 12,
   "terminal.integrated.fontSize": 12,
   "better-comments.multilineComments": true

@@ -8,6 +8,7 @@ async function bootstrap() {
   app.enableCors()
 
   app.useGlobalFilters(new QueryFailedExceptionFilter())
+  app.setGlobalPrefix('poemia/api/v1')
 
   const config = new DocumentBuilder()
     .setTitle('Poemia')

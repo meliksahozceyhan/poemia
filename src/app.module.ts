@@ -7,15 +7,28 @@ import secretConfig from './config/secret.config'
 import { DatabaseModule } from './database/database.module'
 import { WinstonLoggerModule } from './winston-logger/winston-logger.module'
 import { LoggingInterceptor } from './interceptors/logger.interceptor'
+import { AuthModule } from './auth/auth.module'
+import { ApiModule } from './api/api.module'
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard'
 
 @Module({
-  imports: [ConfigModule.forRoot({ load: [databaseConfig, secretConfig], isGlobal: true }), DatabaseModule, WinstonLoggerModule],
+  imports: [
+    ConfigModule.forRoot({ load: [databaseConfig, secretConfig], isGlobal: true }),
+    DatabaseModule,
+    WinstonLoggerModule,
+    AuthModule,
+    ApiModule
+  ],
   controllers: [AppController],
   providers: [
     AppService,
     {
       provide: 'APP_INTERCEPTOR',
       useClass: LoggingInterceptor
+    },
+    {
+      provide: 'APP_GUARD',
+      useClass: JwtAuthGuard
     }
   ]
 })

@@ -11,6 +11,8 @@ export class QueryFailedExceptionFilter implements ExceptionFilter<QueryFailedEr
     const request = context.getRequest<Request>()
     const status = HttpStatus.INTERNAL_SERVER_ERROR
 
+    console.error(exception)
+
     response
       .status(status)
       .json({
