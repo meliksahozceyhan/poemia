@@ -6,6 +6,7 @@ import { LoginDto } from './dto/login.dto'
 import { ApiTags } from '@nestjs/swagger'
 import { User } from './user/entity/user.entity'
 import { RefreshDto } from './dto/refresh.dto'
+import { ActivateAccountDto } from './dto/activate-account-dto'
 
 @Controller('auth')
 @ApiTags('auth')
@@ -26,7 +27,12 @@ export class AuthController {
 
   @Post('silent-renew')
   public async silentRenew(@Request() request: Request, @Body() refreshToken: RefreshDto, @CurrentUser() user: User) {
-    console.log(request.headers)
     return this.authService.silentRenew(request.headers['authorization'].split(' ')[1], refreshToken.refreshToken, user)
+  }
+
+  @SkipAuth()
+  @Post('activate')
+  public async activateUser(@Body() activateAccountDto: ActivateAccountDto) {
+    return this.authService.activateAccount(activateAccountDto)
   }
 }

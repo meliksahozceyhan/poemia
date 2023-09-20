@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { Length } from 'class-validator'
+import { IsMobilePhone, Length } from 'class-validator'
 
 export class RegisterDto {
   @Length(1, 64)
@@ -12,6 +12,11 @@ export class RegisterDto {
 
   @Length(1, 64)
   @ApiProperty()
+  @IsMobilePhone()
+  phoneNumber: string
+
+  @Length(1, 64)
+  @ApiProperty()
   password: string
 
   @ApiProperty()
@@ -19,4 +24,7 @@ export class RegisterDto {
 
   @ApiProperty()
   fcmToken: string
+
+  @ApiProperty()
+  language: string
 }

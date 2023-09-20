@@ -2,13 +2,16 @@ import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { AppModule } from './app.module'
 import { QueryFailedExceptionFilter } from './filters/query-failed-exception.filter'
+import { ValidationPipe } from '@nestjs/common'
+import { EntityNotFoundExceptionFilter } from './filters/entity-not-found-exception.filter'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   app.enableCors()
 
-  app.useGlobalFilters(new QueryFailedExceptionFilter())
+  app.useGlobalFilters(new QueryFailedExceptionFilter(), new EntityNotFoundExceptionFilter())
   app.setGlobalPrefix('poemia/api/v1')
+  app.useGlobalPipes(new ValidationPipe())
 
   const config = new DocumentBuilder()
     .setTitle('Poemia')
