@@ -10,7 +10,7 @@ export class LoggingInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> | Promise<Observable<any>> {
     const request = context.switchToHttp().getRequest<Request>()
 
-    if (request.method === 'POST' || request.method === 'PUT') {
+    if (request.method === 'POST' || request.method === 'PUT' || request.method === 'DELETE') {
       const meta = this.getLogMeta(request, context)
       return next.handle().pipe(tap((savedData) => this.logger.log(JSON.stringify(savedData), meta)))
     }
