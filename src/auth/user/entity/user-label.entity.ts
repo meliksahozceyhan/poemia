@@ -4,9 +4,9 @@ import { BaseEntity } from 'src/sdk/entity/base.entity'
 
 @Entity()
 export class UserLabel extends BaseEntity {
-  @ManyToOne(() => User, { lazy: true, eager: false })
+  @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })
-  user: Promise<User>
+  user: User
 
   @Column()
   label: string

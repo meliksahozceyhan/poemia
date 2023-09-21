@@ -5,10 +5,19 @@ import { Repository } from 'typeorm'
 import { RegisterDto } from '../dto/register.dto'
 import * as bcrypt from 'bcrypt'
 import { CheckUsernameDto } from '../dto/check-username.dto'
+import { UserLabel } from './entity/user-label.entity'
+import { UserAbout } from './entity/user-about.entity'
+import { CreateLabelDto } from './dto/create-label-dto'
+import { CreateAboutDto } from './dto/create-about-dto'
+import { UpdateAboutDto } from './dto/update-about-dto'
 
 @Injectable()
 export class UserService {
-  constructor(@InjectRepository(User) private readonly repository: Repository<User>) {}
+  constructor(
+    @InjectRepository(User) private readonly repository: Repository<User>,
+    @InjectRepository(UserLabel) private readonly labelRepository: Repository<UserLabel>,
+    @InjectRepository(UserAbout) private readonly aboutRepository: Repository<UserAbout>
+  ) {}
 
   public async findUserByUserName(username: string): Promise<User> {
     return await this.repository.findOneByOrFail({ username: username })
@@ -40,5 +49,23 @@ export class UserService {
     const user = await this.repository.findOneByOrFail({ phoneNumber: phoneNumber })
     user.isActive = true
     return await this.repository.save(user)
+  }
+
+  public async addLabelToUser(createLabelDto: CreateLabelDto): Promise<UserLabel> {
+    return await this.labelRepository.save(createLabelDto)
+  }
+
+  public async addAboutToUser(createAboutDto: CreateAboutDto): Promise<UserAbout> {
+    return await this.aboutRepository.save(createAboutDto)
+  }
+
+  public async updateAboutOfUser(id: string, dto: UpdateAboutDto) {
+    const userAbout = await this.aboutRepository.findOneByOrFail({ id: id })
+    Object.assign(userAbout, dto)
+    return await this.aboutRepository.save(userAbout)
+  }
+
+  public async findById(id: string): Promise<User> {
+    return await this.repository.findOneByOrFail({ id: id })
   }
 }
