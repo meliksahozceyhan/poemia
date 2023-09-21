@@ -10,6 +10,7 @@ import { JwtStrategy } from '../strategy/jwt.strategy'
 @Module({
   imports: [TypeOrmModule.forFeature([User, UserAbout, UserLabel])],
   controllers: [UserController],
-  providers: [UserService, JwtStrategy]
+  providers: [UserService, JwtStrategy],
+  exports: [UserService]
 })
 export class UserModule {}

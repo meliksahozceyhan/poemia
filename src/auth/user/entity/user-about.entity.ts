@@ -14,12 +14,12 @@ export class UserAbout extends BaseEntity {
   @Column()
   city: string
 
-  @Column({ type: 'date' })
+  @Column({ type: 'date', nullable: true })
   birthDate: Date
 
-  @Column({ enum: relationStatus })
+  @Column({ enum: relationStatus, nullable: true })
   relationStatus: string
 
-  @Column({})
+  @Column({ nullable: true })
   education: string
 }

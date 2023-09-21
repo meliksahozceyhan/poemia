@@ -7,13 +7,15 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { UserService } from './user/user.service'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { User } from './user/entity/user.entity'
+import { UserAbout } from './user/entity/user-about.entity'
+import { UserLabel } from './user/entity/user-label.entity'
 
 @Module({
   controllers: [AuthController],
   providers: [AuthService, UserService],
   imports: [
     UserModule,
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, UserAbout, UserLabel]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

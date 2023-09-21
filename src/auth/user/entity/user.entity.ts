@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { Exclude, Transform, instanceToPlain } from 'class-transformer'
+import { Exclude, instanceToPlain } from 'class-transformer'
 import { IsNotEmpty, Length } from 'class-validator'
 import { BaseEntity } from 'src/sdk/entity/base.entity'
 import { Column, Entity, OneToMany, OneToOne } from 'typeorm'
@@ -65,8 +65,7 @@ export class User extends BaseEntity {
   @OneToOne(() => UserAbout, (userAbout) => userAbout.user, { eager: true, cascade: true })
   about: UserAbout
 
-  @OneToMany(() => UserLabel, (userLabel) => userLabel.user, { eager: true, cascade: true })
-  @Transform(({ value }) => value.label)
+  @OneToMany(() => UserLabel, (userLabel) => userLabel.user, { eager: true })
   labels: UserLabel[]
 
   toJSON() {
