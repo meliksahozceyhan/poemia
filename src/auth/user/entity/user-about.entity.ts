@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, OneToOne } from 'typeorm'
 import { User } from './user.entity'
 import { Exclude } from 'class-transformer'
 import { relationStatus } from 'src/util/enums'
-import { BaseEntity } from 'src/sdk/entity/base-entity'
+import { BaseEntity } from 'src/sdk/entity/base.entity'
 
 @Entity()
 export class UserAbout extends BaseEntity {
