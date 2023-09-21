@@ -19,9 +19,11 @@
 		"test:watch": "jest --watch",
 		"test:cov": "jest --coverage",
 		"test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-		"test:e2e": "jest --config ./test/jest-e2e.json"
+		"test:e2e": "jest --config ./test/jest-e2e.json",
+		"typeorm": "typeorm-ts-node-esm"
 	},
 	"dependencies": {
+		"@aws-sdk/types": "^3.32.0",
 		"@nestjs/common": "^9.4.3",
 		"@nestjs/config": "^3.0.1",
 		"@nestjs/core": "^9.0.0",
@@ -31,7 +33,6 @@
 		"@nestjs/swagger": "^7.1.10",
 		"@nestjs/typeorm": "^10.0.0",
 		"aws-sdk": "^2.1459.0",
-		"@aws-sdk/types": "^3.32.0",
 		"bcrypt": "^5.1.1",
 		"class-transformer": "^0.5.1",
 		"class-validator": "^0.14.0",
@@ -69,7 +70,7 @@
 		"supertest": "^6.1.3",
 		"ts-jest": "29.0.3",
 		"ts-loader": "^9.2.3",
-		"ts-node": "^10.0.0",
+		"ts-node": "^10.9.1",
 		"tsconfig-paths": "4.1.1",
 		"typescript": "^4.7.4"
 	},

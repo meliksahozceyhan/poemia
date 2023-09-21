@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Exclude, Transform, instanceToPlain } from 'class-transformer'
 import { IsNotEmpty, Length } from 'class-validator'
-import { BaseEntity } from 'src/sdk/entity/base-entity'
+import { BaseEntity } from 'src/sdk/entity/base.entity'
 import { Column, Entity, OneToMany, OneToOne } from 'typeorm'
 import { languageNames } from 'src/util/languages'
 import { UserAbout } from './user-about.entity'

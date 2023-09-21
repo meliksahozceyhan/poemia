@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsNumber, Length } from 'class-validator'
-import { BaseEntity } from 'src/sdk/entity/base-entity'
+import { BaseEntity } from 'src/sdk/entity/base.entity'
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
 import { ItemType } from './item_type.entity'
 
