@@ -6,6 +6,7 @@ import { ValidationPipe } from '@nestjs/common'
 import { EntityNotFoundExceptionFilter } from './filters/entity-not-found-exception.filter'
 
 async function bootstrap() {
+  console.log(process.env.DENEME_LOG)
   const app = await NestFactory.create(AppModule)
   app.enableCors()
 

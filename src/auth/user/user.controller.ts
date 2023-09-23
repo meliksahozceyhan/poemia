@@ -1,12 +1,13 @@
 import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common'
 import { UserService } from './user.service'
-import { ApiTags } from '@nestjs/swagger'
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger'
 import { CreateLabelDto } from './dto/create-label-dto'
 import { UserLabel } from './entity/user-label.entity'
 import { CreateAboutDto } from './dto/create-about-dto'
 import { UserAbout } from './entity/user-about.entity'
 import { User } from './entity/user.entity'
 import { UpdateAboutDto } from './dto/update-about-dto'
+import { RegisterDto } from '../dto/register.dto'
 
 @Controller('user')
 @ApiTags('user')
@@ -29,6 +30,9 @@ export class UserController {
   }
 
   @Get(':id')
+  @ApiOkResponse({
+    type: RegisterDto
+  })
   public async getSingleUser(@Param('id', ParseUUIDPipe) id: string): Promise<User> {
     return this.userService.findById(id)
   }

@@ -7,8 +7,6 @@
 	"license": "UNLICENSED",
 	"scripts": {
 		"build": "nest build",
-		"build:test": "nest build",
-		"build:prod": "nest build",
 		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
 		"start": "nest start",
 		"start:dev": "nest start --watch",
@@ -20,7 +18,9 @@
 		"test:cov": "jest --coverage",
 		"test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
 		"test:e2e": "jest --config ./test/jest-e2e.json",
-		"typeorm": "typeorm-ts-node-esm"
+		"typeorm": "typeorm-ts-node-esm",
+		"package:test": "docker build -t poemia:$DOCKER_IMAGE_VERSION .",
+		"package:prod": "docker build -t poemia-release:$DOCKER_IMAGE_VERSION -f Dockerfile.prod ."
 	},
 	"dependencies": {
 		"@aws-sdk/types": "^3.32.0",
