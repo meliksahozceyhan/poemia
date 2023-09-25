@@ -11,12 +11,23 @@ import { ActivateAccountDto } from './dto/activate-account-dto'
 import { Pinpoint } from 'aws-sdk'
 import * as uuid from 'uuid'
 import { ResendOtpDto } from './dto/resend-otp.dto'
-import { JwtTokenResponse, OtpReponse } from './interfaces/interfaces'
+import { ForgotPasswordResponse, JwtTokenResponse, OtpReponse } from './interfaces/responses'
+import { InjectRepository } from '@nestjs/typeorm'
+import { ForgotPassword } from './entity/forgot-password.entity'
+import { Repository } from 'typeorm'
+import { ResetPasswordDto } from './dto/reset-password-dto'
+import { ConfirmOtpDto } from './dto/confirm-otp-dto'
+import { MailService } from 'src/mail/mail.service'
 
 @Injectable()
 export class AuthService {
   otpResponses = []
-  constructor(private readonly userService: UserService, private jwtService: JwtService) {}
+  constructor(
+    private readonly userService: UserService,
+    private jwtService: JwtService,
+    @InjectRepository(ForgotPassword) private readonly forgotPasswordRepo: Repository<ForgotPassword>,
+    private readonly mailService: MailService
+  ) {}
 
   public async signUp(registerDto: RegisterDto): Promise<OtpReponse> {
     const user = await this.userService.createUser(registerDto)
@@ -81,5 +92,47 @@ export class AuthService {
       iat: new Date(),
       user: rest
     }
+  }
+
+  public async forgotPassword(email: string): Promise<ForgotPasswordResponse> {
+    const user = await this.userService.findByEmail(email)
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString()
+    const referenceId = uuid.v4()
+
+    const forgotPassword = new ForgotPassword()
+    forgotPassword.user = user
+    forgotPassword.referenceId = referenceId
+    forgotPassword.otpCode = otpCode
+    await this.forgotPasswordRepo.save(forgotPassword)
+    this.mailService.sendOTPMail(user, otpCode)
+    return {
+      referenceId: referenceId,
+      email: user.email
+    }
+  }
+
+  public async confimOTP(confirmOtpDto: ConfirmOtpDto): Promise<boolean> {
+    const forgotEntity = await this.forgotPasswordRepo.findOneByOrFail({ referenceId: confirmOtpDto.referenceId })
+    if (forgotEntity.user.email === confirmOtpDto.email) {
+      if (confirmOtpDto.otp === forgotEntity.otpCode) {
+        return true
+      } else {
+        return false
+      }
+    } else {
+      throw new Error('Auth.WrongReferenceId')
+    }
+  }
+
+  public async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<JwtTokenResponse> {
+    const referenceValue = await this.forgotPasswordRepo.findOneOrFail({
+      where: {
+        referenceId: resetPasswordDto.referenceId,
+        user: { email: resetPasswordDto.email }
+      }
+    })
+    const user = await this.userService.findByEmail(resetPasswordDto.email)
+
+    return this.createToken(await this.userService.updatePasswordOfUser(resetPasswordDto.newPassword, user))
   }
 }

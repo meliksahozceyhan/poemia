@@ -68,4 +68,9 @@ export class UserService {
   public async findById(id: string): Promise<User> {
     return await this.repository.findOneByOrFail({ id: id })
   }
+
+  public async updatePasswordOfUser(newPassword: string, userToSave: User): Promise<User> {
+    userToSave.password = await bcrypt.hash(newPassword as string, 10)
+    return await this.repository.save(userToSave)
+  }
 }

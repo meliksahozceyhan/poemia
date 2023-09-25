@@ -9,13 +9,16 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { User } from './user/entity/user.entity'
 import { UserAbout } from './user/entity/user-about.entity'
 import { UserLabel } from './user/entity/user-label.entity'
+import { ForgotPassword } from './entity/forgot-password.entity'
+import { MailModule } from 'src/mail/mail.module'
 
 @Module({
   controllers: [AuthController],
   providers: [AuthService, UserService],
   imports: [
     UserModule,
-    TypeOrmModule.forFeature([User, UserAbout, UserLabel]),
+    MailModule,
+    TypeOrmModule.forFeature([User, UserAbout, UserLabel, ForgotPassword]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
