@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
+import { readFileSync } from 'fs'
 
 @Module({
   imports: [
@@ -19,7 +20,15 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
         autoLoadEntities: true,
         synchronize: true,
         logging: false,
-        namingStrategy: new SnakeNamingStrategy()
+        namingStrategy: new SnakeNamingStrategy(),
+        extra: {
+          ssl:
+            process.env.DENEME_LOG === 'dev'
+              ? false
+              : {
+                  ca: readFileSync(__dirname + '/crt/eu-central-1-bundle.pem').toString()
+                }
+        }
       })
     })
   ]
