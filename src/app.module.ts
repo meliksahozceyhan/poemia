@@ -10,14 +10,17 @@ import { LoggingInterceptor } from './interceptors/logger.interceptor'
 import { AuthModule } from './auth/auth.module'
 import { ApiModule } from './api/api.module'
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard'
+import { MailModule } from './mail/mail.module'
+import mailConfig from './config/mail.config'
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ load: [databaseConfig, secretConfig], isGlobal: true }),
+    ConfigModule.forRoot({ load: [databaseConfig, secretConfig, mailConfig], isGlobal: true }),
     DatabaseModule,
     WinstonLoggerModule,
     AuthModule,
-    ApiModule
+    ApiModule,
+    MailModule
   ],
   controllers: [AppController],
   providers: [
