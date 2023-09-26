@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { User } from '../user/entity/user.entity'
 import { Pinpoint } from 'aws-sdk'
+import { UpdateUserDto } from '../user/dto/update-user-dto'
 
 export class JwtTokenResponse {
   @ApiProperty()
@@ -9,7 +10,7 @@ export class JwtTokenResponse {
   refreshToken: string
   @ApiProperty()
   iat: Date
-  @ApiProperty()
+  @ApiProperty({ type: UpdateUserDto })
   user: Partial<User>
 }
 

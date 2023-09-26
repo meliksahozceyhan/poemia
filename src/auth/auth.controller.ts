@@ -19,50 +19,77 @@ export class AuthController {
 
   @SkipAuth()
   @Post('/signup')
+  @ApiOkResponse({
+    type: OtpReponse
+  })
   public async signUp(@Body() registerDto: RegisterDto): Promise<OtpReponse> {
     return this.authService.signUp(registerDto)
   }
 
   @SkipAuth()
   @Post('login')
-  @ApiOkResponse({})
+  @ApiOkResponse({
+    type: JwtTokenResponse
+  })
   public async login(@Body() loginDto: LoginDto): Promise<JwtTokenResponse> {
     return this.authService.login(loginDto)
   }
 
   @Post('silent-renew')
+  @ApiOkResponse({
+    type: JwtTokenResponse
+  })
   public async silentRenew(@Request() request: Request, @Body() refreshToken: RefreshDto, @CurrentUser() user: User): Promise<JwtTokenResponse> {
     return this.authService.silentRenew(request.headers['authorization'].split(' ')[1], refreshToken.refreshToken, user)
   }
 
   @Post('forgot-password')
   @ApiBadRequestResponse({ description: 'Email must be email.' })
-  @ApiOkResponse({ description: 'returns OTP response.' })
+  @ApiOkResponse({
+    type: ForgotPasswordResponse,
+    description: 'returns OTP response.'
+  })
   public async forgotPassword(@Query('email', ValidateEmailPipe) email: string): Promise<ForgotPasswordResponse> {
     return this.authService.forgotPassword(email)
   }
 
   @SkipAuth()
   @Post('activate')
+  @ApiOkResponse({
+    type: JwtTokenResponse,
+    description: 'returns JWT response.'
+  })
   public async activateUser(@Body() activateAccountDto: ActivateAccountDto): Promise<JwtTokenResponse> {
     return this.authService.activateAccount(activateAccountDto)
   }
 
   @SkipAuth()
   @Get('resend-code')
+  @ApiOkResponse({
+    type: OtpReponse,
+    description: 'returns JWT response.'
+  })
   public async resendOtpCode(@Query('phoneNumber') phoneNumber: string): Promise<OtpReponse> {
     return this.authService.resendOtp(phoneNumber)
   }
 
   @SkipAuth()
   @Post('confirm/email/otp')
+  @ApiOkResponse({
+    type: Boolean,
+    description: 'If the given values are correct return true, Else return false '
+  })
   public async confirmEmailOtp(@Body() confirmOtpDto: ConfirmOtpDto) {
     return this.authService.confimOTP(confirmOtpDto)
   }
 
   @SkipAuth()
   @Post('reset/password')
-  public async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+  @ApiOkResponse({
+    type: JwtTokenResponse,
+    description: 'returns JWT response. with new credentials'
+  })
+  public async resetPassword(@Body() resetPasswordDto: ResetPasswordDto): Promise<JwtTokenResponse> {
     return this.authService.resetPassword(resetPasswordDto)
   }
 }

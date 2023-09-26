@@ -6,7 +6,9 @@
 		"deleteOutDir": true,
 		"assets": [
 			"mail/templates/**/*.hbs",
-			"**/*.pem"
+			"**/*.pem",
+			"**/*.crt",
+			"**/*.key"
 		],
 		"watchAssets": true
 	}

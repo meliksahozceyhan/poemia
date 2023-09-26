@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
 import { User } from './user.entity'
 import { BaseEntity } from 'src/sdk/entity/base.entity'
+import { ApiProperty } from '@nestjs/swagger'
 
 @Entity()
 export class UserLabel extends BaseEntity {
@@ -9,5 +10,6 @@ export class UserLabel extends BaseEntity {
   user: User
 
   @Column()
+  @ApiProperty()
   label: string
 }
