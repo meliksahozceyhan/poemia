@@ -16,6 +16,8 @@ RUN mv .env.test .env
 
 RUN  npm i -g @nestjs/cli
 
+RUN npm install
+
 RUN npm run build
 
 # Expose the port your Nest.js application will listen on (default is 3000)
