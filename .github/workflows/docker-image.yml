@@ -3,12 +3,11 @@ name: Publish Docker Container on Tag Push
 on:
   push:
     tags:
-      - 'v*'
+      - '*'
 
 jobs:
   build-and-publish-test:
     runs-on: ubuntu-latest
-    env: ${{ secrets.env }}
 
     steps:
       - name: Checkout code
