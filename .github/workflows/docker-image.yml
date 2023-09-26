@@ -3,7 +3,7 @@ name: Publish Docker Container on Tag Push
 on:
   push:
     tags:
-      - 'v*'
+      - '*'
 
 jobs:
   build-and-publish-test:
