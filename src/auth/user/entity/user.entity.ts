@@ -16,22 +16,27 @@ export class User extends BaseEntity {
 
   @IsNotEmpty()
   @Column({ nullable: false, unique: true })
+  @ApiProperty()
   username: string
 
   @IsNotEmpty()
   @Exclude({ toPlainOnly: true })
   @Column({ nullable: false })
+  @ApiProperty()
   password: string
 
   @IsNotEmpty()
   @Column({ nullable: false, unique: true })
+  @ApiProperty()
   phoneNumber: string
 
   @Length(0, 255)
   @Column({ length: 255, nullable: true })
+  @ApiProperty()
   bio: string
 
   @Column()
+  @ApiProperty()
   fcmToken: string
 
   @Column({ length: 2, nullable: true })
@@ -39,30 +44,43 @@ export class User extends BaseEntity {
   language: string
 
   @Column({ default: false })
+  @ApiProperty()
   unlimitedPoem: boolean
 
   @Column()
+  @ApiProperty()
   androidId: string
 
   @Column({ default: false })
+  @ApiProperty()
   isPremium: boolean
 
   @Column({ default: 0 })
+  @ApiProperty()
   pCoin: number
 
   @Column({ default: false })
+  @ApiProperty()
   isPrivate: boolean
 
   @Column({ default: false })
+  @ApiProperty()
   isViewPrivate: boolean
 
   @Column({ default: false })
+  @ApiProperty()
   photoCheck: boolean
 
   @Column({ default: false })
+  @ApiProperty()
   isActive: boolean
 
+  @Column({ nullable: true })
+  @ApiProperty()
+  profileImageUrl: boolean
+
   @OneToOne(() => UserAbout, (userAbout) => userAbout.user, { eager: true, cascade: true })
+  @ApiProperty()
   about: UserAbout
 
   @OneToMany(() => UserLabel, (userLabel) => userLabel.user, { eager: true })

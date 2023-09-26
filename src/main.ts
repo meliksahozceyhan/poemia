@@ -4,10 +4,17 @@ import { AppModule } from './app.module'
 import { QueryFailedExceptionFilter } from './filters/query-failed-exception.filter'
 import { ValidationPipe } from '@nestjs/common'
 import { EntityNotFoundExceptionFilter } from './filters/entity-not-found-exception.filter'
+import { readFileSync } from 'fs'
 
 async function bootstrap() {
   console.log(process.env.DENEME_LOG)
-  const app = await NestFactory.create(AppModule)
+  const httpsOptions = {
+    key: readFileSync(__dirname + '/secrets/poemia.key'),
+    cert: readFileSync(__dirname + '/secrets/poemia.crt')
+  }
+  const app = await NestFactory.create(AppModule, {
+    httpsOptions
+  })
   app.enableCors()
 
   app.useGlobalFilters(new QueryFailedExceptionFilter(), new EntityNotFoundExceptionFilter())
