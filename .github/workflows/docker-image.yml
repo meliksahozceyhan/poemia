@@ -19,6 +19,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Install Nestjs
+        run: npm i -g @nestjs/cli
+
       - name: Build and tag Docker image
         run: |
           DOCKER_IMAGE_VERSION=${{ github.ref_name }} npm run package:test
