@@ -11,6 +11,8 @@ import { UserAbout } from './user/entity/user-about.entity'
 import { UserLabel } from './user/entity/user-label.entity'
 import { ForgotPassword } from './entity/forgot-password.entity'
 import { MailModule } from 'src/mail/mail.module'
+import { UserView } from './user/entity/user-view.entity'
+import { UserFollow } from './user/entity/user-follow.entity'
 
 @Module({
   controllers: [AuthController],
@@ -18,7 +20,7 @@ import { MailModule } from 'src/mail/mail.module'
   imports: [
     UserModule,
     MailModule,
-    TypeOrmModule.forFeature([User, UserAbout, UserLabel, ForgotPassword]),
+    TypeOrmModule.forFeature([User, UserAbout, UserLabel, UserView, UserFollow, ForgotPassword]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsNotEmpty, IsNotEmptyObject, IsObject, IsString, Length } from 'class-validator'
-import { UserReferenceDto } from './user-reference-dto'
+import { UserReferenceDto } from '../user-reference-dto'
 
 export class CreateLabelDto {
   @IsString()

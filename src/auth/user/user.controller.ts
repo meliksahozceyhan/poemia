@@ -1,12 +1,13 @@
 import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common'
 import { UserService } from './user.service'
-import { ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
-import { CreateLabelDto } from './dto/create-label-dto'
+import { ApiNotFoundResponse, ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger'
+import { CreateLabelDto } from './dto/label/create-label-dto'
 import { UserLabel } from './entity/user-label.entity'
-import { CreateAboutDto } from './dto/create-about-dto'
+import { CreateAboutDto } from './dto/about/create-about-dto'
 import { UserAbout } from './entity/user-about.entity'
 import { User } from './entity/user.entity'
-import { UpdateAboutDto } from './dto/update-about-dto'
+import { CurrentUser } from 'src/decorators/decorators'
+import { UpdateAboutDto } from './dto/about/update-about-dto'
 
 @Controller('user')
 @ApiTags('user')
@@ -44,7 +45,27 @@ export class UserController {
   @ApiOkResponse({
     type: User
   })
-  public async getSingleUser(@Param('id', ParseUUIDPipe) id: string): Promise<User> {
-    return this.userService.findById(id)
+  @ApiParam({
+    name: 'id',
+    description: 'Id of User to get',
+    required: true,
+    type: String
+  })
+  public async getSingleUser(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User): Promise<User> {
+    return this.userService.findById(id, user)
+  }
+
+  @Post('follow/:id')
+  @ApiOkResponse({
+    type: User
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Id of User to be Followed',
+    required: true,
+    type: String
+  })
+  public async followUser(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+    return this.userService.followUser(id, user)
   }
 }
