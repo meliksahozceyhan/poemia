@@ -10,3 +10,10 @@ export const relationStatus = {
   COMPLICATED: 'COMPLICATED',
   DIVORCED: 'DIVORCED'
 }
+
+export const gender = {
+  MALE: 'MALE',
+  FEMALE: 'FEMALE',
+  OTHER: 'OTHER',
+  DONT_SPECIFY: 'DONT_SPECIFY'
+}

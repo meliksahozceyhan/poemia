@@ -7,16 +7,21 @@ import * as bcrypt from 'bcrypt'
 import { CheckUsernameDto } from '../dto/check-username.dto'
 import { UserLabel } from './entity/user-label.entity'
 import { UserAbout } from './entity/user-about.entity'
-import { CreateLabelDto } from './dto/create-label-dto'
-import { CreateAboutDto } from './dto/create-about-dto'
-import { UpdateAboutDto } from './dto/update-about-dto'
+import { CreateLabelDto } from './dto/label/create-label-dto'
+import { CreateAboutDto } from './dto/about/create-about-dto'
+import { UserView } from './entity/user-view.entity'
+import { BasePoemiaError } from 'src/sdk/Error/BasePoemiaError'
+import { UserFollow } from './entity/user-follow.entity'
+import { UpdateAboutDto } from './dto/about/update-about-dto'
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly repository: Repository<User>,
     @InjectRepository(UserLabel) private readonly labelRepository: Repository<UserLabel>,
-    @InjectRepository(UserAbout) private readonly aboutRepository: Repository<UserAbout>
+    @InjectRepository(UserAbout) private readonly aboutRepository: Repository<UserAbout>,
+    @InjectRepository(UserView) private readonly viewRepository: Repository<UserView>,
+    @InjectRepository(UserFollow) private readonly followRepository: Repository<UserFollow>
   ) {}
 
   public async findUserByUserName(username: string): Promise<User> {
@@ -65,12 +70,41 @@ export class UserService {
     return await this.aboutRepository.save(userAbout)
   }
 
-  public async findById(id: string): Promise<User> {
-    return await this.repository.findOneByOrFail({ id: id })
+  public async findById(id: string, user: User): Promise<User> {
+    if (id !== user.id) {
+      this.viewUser(id, user)
+    }
+    const foundUser = await this.repository.findOneByOrFail({ id: id })
+    if (id === foundUser.id) {
+      foundUser['self'] = true
+    }
+    return foundUser
   }
 
   public async updatePasswordOfUser(newPassword: string, userToSave: User): Promise<User> {
     userToSave.password = await bcrypt.hash(newPassword as string, 10)
     return await this.repository.save(userToSave)
   }
+
+  private async viewUser(userId: string, viewer: User) {
+    await this.viewRepository.save({ user: { id: userId }, viewer: viewer, isSecret: viewer.isViewPrivate })
+  }
+
+  public async followUser(id: string, follower: User) {
+    const user = await this.repository.findOneByOrFail({ id: id })
+    if (follower.id === id) {
+      throw new BasePoemiaError('user.canNotFollowYourself')
+    }
+    const followEntity = this.followRepository.create()
+    followEntity.follower = follower
+    followEntity.user.id = id
+    followEntity.isActive = !user.isPrivate
+
+    this.followRepository.save(followEntity)
+  }
+
+  //TODO: Profile page details will come  from here
+  /* public async getSelfProfile(user: User) {
+    const user1 = await this.repository.findOneBy({ id: user.id })
+  } */
 }
