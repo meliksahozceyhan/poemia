@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Request, Response, UseFilters } from '@nestjs/common'
+import { Body, Controller, Get, Post, Query, Request, UseFilters } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { CurrentUser, SkipAuth } from 'src/decorators/decorators'
 import { RegisterDto } from './dto/register.dto'
@@ -38,8 +38,8 @@ export class AuthController {
     description: 'If user not activated return OTP response.',
     type: OtpReponse
   })
-  public async login(@Body() loginDto: LoginDto, @Response() response: Response): Promise<JwtTokenResponse> {
-    return this.authService.login(loginDto, response)
+  public async login(@Body() loginDto: LoginDto): Promise<JwtTokenResponse> {
+    return await this.authService.login(loginDto)
   }
 
   @Post('silent-renew')

@@ -13,6 +13,7 @@ import { UpdateAboutDto } from './dto/about/update-about-dto'
 import { UserNameChangeDto } from './dto/detail/user-name-change-dto'
 import { UserNameChange } from './entity/user-name-change.entity'
 import { BasePoemiaError } from 'src/sdk/Error/BasePoemiaError'
+import { FcmTokenUpdateDto } from './dto/fcm-token-update-dto'
 
 @Injectable()
 export class UserService {
@@ -119,5 +120,15 @@ export class UserService {
 
   private async viewUser(userId: string, viewer: User) {
     await this.viewRepository.save({ user: { id: userId }, viewer: viewer, isSecret: viewer.isViewPrivate })
+  }
+
+  public async updateFcmToken(userId: string, fcmTokenUpdateDto: FcmTokenUpdateDto): Promise<User> {
+    const user = await this.findById(userId)
+    if (user.fcmToken === fcmTokenUpdateDto.fcmToken) {
+      return user
+    } else {
+      user.fcmToken = fcmTokenUpdateDto.fcmToken
+      return await this.repository.save(user)
+    }
   }
 }
