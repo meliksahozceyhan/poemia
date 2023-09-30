@@ -20,6 +20,7 @@ import { UserActionService } from './user-actions.service'
 import { UserBlocked } from './entity/user-blocked.entity'
 import { UserNameChange } from './entity/user-name-change.entity'
 import { UserNameChangeDto } from './dto/detail/user-name-change-dto'
+import { FcmTokenUpdateDto } from './dto/fcm-token-update-dto'
 
 @Controller('user')
 @ApiTags('user')
@@ -124,5 +125,17 @@ export class UserController {
   @SkipAuth()
   public async deleteByEmail(@Param('email') email: string) {
     return await this.userService.deleteByEmail(email)
+  }
+
+  @Put('update/fcmToken')
+  @ApiOkResponse({ type: User })
+  public async updateFcmToken(@Body() fcmTokenUpdateDto: FcmTokenUpdateDto, @CurrentUser() user: User) {
+    return await this.userService.updateFcmToken(user.id, fcmTokenUpdateDto)
+  }
+
+  @Get('profile/self')
+  @ApiOkResponse({ type: User })
+  public async getSelfProfile(@CurrentUser() user: User) {
+    return await this.userService.findById(user.id)
   }
 }

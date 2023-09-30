@@ -76,14 +76,15 @@ export class User extends BaseEntity {
   isActive: boolean
 
   @Column({ nullable: true })
-  @ApiProperty()
-  profileImageUrl: boolean
+  @ApiProperty({ nullable: true })
+  profileImageUrl: string
 
   @OneToOne(() => UserAbout, (userAbout) => userAbout.user, { eager: true, cascade: true })
-  @ApiProperty()
+  @ApiProperty({ type: UserAbout, nullable: true })
   about: UserAbout
 
   @OneToMany(() => UserLabel, (userLabel) => userLabel.user, { eager: true })
+  @ApiProperty({ type: UserLabel, nullable: true })
   labels: UserLabel[]
 
   toJSON() {
