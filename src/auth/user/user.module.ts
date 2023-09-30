@@ -8,11 +8,14 @@ import { UserLabel } from './entity/user-label.entity'
 import { JwtStrategy } from '../strategy/jwt.strategy'
 import { UserView } from './entity/user-view.entity'
 import { UserFollow } from './entity/user-follow.entity'
+import { UserNameChange } from './entity/user-name-change.entity'
+import { UserActionService } from './user-actions.service'
+import { UserBlocked } from './entity/user-blocked.entity'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, UserAbout, UserLabel, UserView, UserFollow])],
+  imports: [TypeOrmModule.forFeature([User, UserAbout, UserLabel, UserView, UserFollow, UserNameChange, UserBlocked])],
   controllers: [UserController],
-  providers: [UserService, JwtStrategy],
+  providers: [UserService, UserActionService, JwtStrategy],
   exports: [UserService]
 })
 export class UserModule {}

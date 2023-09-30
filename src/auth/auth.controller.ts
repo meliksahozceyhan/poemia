@@ -1,9 +1,9 @@
-import { Body, Controller, Get, Post, Query, Request } from '@nestjs/common'
+import { Body, Controller, Get, Post, Query, Request, Response, UseFilters } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { CurrentUser, SkipAuth } from 'src/decorators/decorators'
 import { RegisterDto } from './dto/register.dto'
 import { LoginDto } from './dto/login.dto'
-import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { ApiBadRequestResponse, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { User } from './user/entity/user.entity'
 import { RefreshDto } from './dto/refresh.dto'
 import { ActivateAccountDto } from './dto/activate-account-dto'
@@ -11,6 +11,7 @@ import { ForgotPasswordResponse, JwtTokenResponse, OtpReponse } from './interfac
 import { ValidateEmailPipe } from 'src/sdk/pipes/parse-email-pipe'
 import { ConfirmOtpDto } from './dto/confirm-otp-dto'
 import { ResetPasswordDto } from './dto/reset-password-dto'
+import { UserNotActivatedErrorFilter } from 'src/filters/user-not-activater-error.filter'
 
 @Controller('auth')
 @ApiTags('auth')
@@ -31,8 +32,14 @@ export class AuthController {
   @ApiOkResponse({
     type: JwtTokenResponse
   })
-  public async login(@Body() loginDto: LoginDto): Promise<JwtTokenResponse> {
-    return this.authService.login(loginDto)
+  @UseFilters(new UserNotActivatedErrorFilter())
+  @ApiResponse({
+    status: 417,
+    description: 'If user not activated return OTP response.',
+    type: OtpReponse
+  })
+  public async login(@Body() loginDto: LoginDto, @Response() response: Response): Promise<JwtTokenResponse> {
+    return this.authService.login(loginDto, response)
   }
 
   @Post('silent-renew')

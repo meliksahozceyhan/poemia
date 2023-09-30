@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { Injectable, UnauthorizedException, Response } from '@nestjs/common'
 import { UserService } from './user/user.service'
 import { JwtService } from '@nestjs/jwt'
 import { RegisterDto } from './dto/register.dto'
@@ -18,6 +18,8 @@ import { Repository } from 'typeorm'
 import { ResetPasswordDto } from './dto/reset-password-dto'
 import { ConfirmOtpDto } from './dto/confirm-otp-dto'
 import { MailService } from 'src/mail/mail.service'
+import { BasePoemiaError } from 'src/sdk/Error/BasePoemiaError'
+import { UserNotActivatedError } from 'src/sdk/Error/UserNotActivatedError'
 
 @Injectable()
 export class AuthService {
@@ -60,18 +62,19 @@ export class AuthService {
     return await this.createToken(user)
   }
 
-  public async login(loginDto: LoginDto): Promise<JwtTokenResponse> {
+  public async login(loginDto: LoginDto, response: Response): Promise<JwtTokenResponse> {
     if (loginDto.username !== undefined && loginDto.username !== null) {
       const user = await this.userService.findUserByUserName(loginDto.username)
       if (!user.isActive) {
-        throw new Error('Account not activated!')
+        const resendOtpResponse = await this.resendOtp(user.phoneNumber)
+        throw new UserNotActivatedError('Account not activated!', resendOtpResponse)
       }
       if (await bcrypt.compare(loginDto.password, user.password as string)) {
         return this.createToken(user)
       }
       throw new UnauthorizedException('auth.wrongPassword')
     }
-    throw new Error('user.email')
+    throw new BasePoemiaError('Email Is wrong')
   }
 
   public async silentRenew(token: string, refreshToken: string, user: User): Promise<JwtTokenResponse> {
@@ -120,7 +123,7 @@ export class AuthService {
         return false
       }
     } else {
-      throw new Error('Auth.WrongReferenceId')
+      throw new BasePoemiaError('Auth.WrongReferenceId')
     }
   }
 
