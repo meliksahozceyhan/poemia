@@ -5,6 +5,7 @@ import { QueryFailedExceptionFilter } from './filters/query-failed-exception.fil
 import { ValidationPipe } from '@nestjs/common'
 import { EntityNotFoundExceptionFilter } from './filters/entity-not-found-exception.filter'
 import { readFileSync } from 'fs'
+import { BasePoemiaErrorFilter } from './filters/base-poemia-error.filter'
 
 async function bootstrap() {
   console.log(process.env.DENEME_LOG)
@@ -17,7 +18,7 @@ async function bootstrap() {
   })
   app.enableCors()
 
-  app.useGlobalFilters(new QueryFailedExceptionFilter(), new EntityNotFoundExceptionFilter())
+  app.useGlobalFilters(new QueryFailedExceptionFilter(), new EntityNotFoundExceptionFilter(), new BasePoemiaErrorFilter())
   app.setGlobalPrefix('poemia/api/v1')
   app.useGlobalPipes(new ValidationPipe({ transform: true }))
 

@@ -5,7 +5,7 @@ import { BaseEntity } from 'src/sdk/entity/base.entity'
 
 @Entity()
 export class ForgotPassword extends BaseEntity {
-  @ManyToOne(() => User, { eager: true })
+  @ManyToOne(() => User, { eager: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User
 
