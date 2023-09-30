@@ -59,15 +59,15 @@ export class User extends BaseEntity {
   @ApiProperty()
   pCoin: number
 
-  @Column({ default: false })
+  @Column({ default: true })
   @ApiProperty()
   isPrivate: boolean
 
-  @Column({ default: false })
+  @Column({ default: true })
   @ApiProperty()
   isViewPrivate: boolean
 
-  @Column({ default: false })
+  @Column({ default: true })
   @ApiProperty()
   photoCheck: boolean
 
