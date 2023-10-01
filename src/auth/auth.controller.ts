@@ -50,6 +50,7 @@ export class AuthController {
     return this.authService.silentRenew(request.headers['authorization'].split(' ')[1], refreshToken.refreshToken, user)
   }
 
+  @SkipAuth()
   @Post('forgot-password')
   @ApiBadRequestResponse({ description: 'Email must be email.' })
   @ApiOkResponse({
