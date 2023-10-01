@@ -20,7 +20,10 @@ export class UserNotActivatedErrorFilter implements ExceptionFilter<UserNotActiv
         path: request.url,
         message: exception.message,
         detail: exception.name,
-        data: exception.body
+        data: exception.body.resendOtpResponse,
+        phoneNumber: exception.body.phoneNumber,
+        email: exception.body.email,
+        referenceId: exception.body.resendOtpResponse.referenceId
       })
       .send()
   }

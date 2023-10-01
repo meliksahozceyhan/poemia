@@ -21,13 +21,15 @@ import { readFileSync } from 'fs'
         synchronize: true,
         logging: false,
         namingStrategy: new SnakeNamingStrategy(),
+        poolSize: 100,
         extra: {
           ssl:
             process.env.DENEME_LOG === 'dev'
               ? false
               : {
                   ca: readFileSync(__dirname + '/crt/eu-central-1-bundle.pem').toString()
-                }
+                },
+          poolSize: 100
         }
       })
     })

@@ -67,7 +67,7 @@ export class AuthService {
       const user = await this.userService.findUserByUserName(loginDto.username)
       if (!user.isActive) {
         const resendOtpResponse = await this.resendOtp(user.phoneNumber)
-        throw new UserNotActivatedError('Account not activated!', resendOtpResponse)
+        throw new UserNotActivatedError('Account not activated!', { resendOtpResponse, phoneNumber: user.phoneNumber, email: user.email })
       }
       if (await bcrypt.compare(loginDto.password, user.password as string)) {
         return await this.createToken(user)
