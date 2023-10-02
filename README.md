@@ -34,6 +34,8 @@ $ npm install
 
 ## Running the app
 
+Git config deneme commit
+
 ```bash
 # development
 $ npm run start
