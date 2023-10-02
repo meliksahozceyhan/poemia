@@ -62,6 +62,11 @@ export class AuthService {
     return await this.createToken(user)
   }
 
+  private async activateUserViaEmailOTP(email: string): Promise<JwtTokenResponse> {
+    const user = await this.userService.findAndActivateUserByEmail(email)
+    return await this.createToken(user)
+  }
+
   public async login(loginDto: LoginDto): Promise<JwtTokenResponse> {
     if (loginDto.username !== undefined && loginDto.username !== null) {
       const user = await this.userService.findUserByUserName(loginDto.username)
@@ -137,5 +142,14 @@ export class AuthService {
     const user = await this.userService.findByEmail(resetPasswordDto.email)
 
     return this.createToken(await this.userService.updatePasswordOfUser(resetPasswordDto.newPassword, user))
+  }
+
+  public async activateAccountViaEmailOtp(confirmOtpDto: ConfirmOtpDto): Promise<JwtTokenResponse> {
+    const confirmed = await this.confimOTP(confirmOtpDto)
+    if (confirmed) {
+      return await this.activateUserViaEmailOTP(confirmOtpDto.email)
+    } else {
+      throw new UnauthorizedException()
+    }
   }
 }

@@ -32,7 +32,7 @@ export class User extends BaseEntity {
 
   @Length(0, 255)
   @Column({ length: 255, nullable: true })
-  @ApiProperty()
+  @ApiProperty({ nullable: true })
   bio: string
 
   @Column()
@@ -40,7 +40,7 @@ export class User extends BaseEntity {
   fcmToken: string
 
   @Column({ length: 2, nullable: true })
-  @ApiProperty({ enum: languageNames })
+  @ApiProperty({ enum: languageNames, nullable: true })
   language: string
 
   @Column({ default: false })

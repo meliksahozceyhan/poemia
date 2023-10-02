@@ -17,18 +17,18 @@ export class UserAbout extends BaseEntity {
   city: string
 
   @Column({ type: 'date', nullable: true })
-  @ApiProperty()
+  @ApiProperty({ nullable: true })
   birthDate: Date
 
   @Column({ enum: relationStatus, nullable: true })
-  @ApiProperty()
+  @ApiProperty({ nullable: true })
   relationStatus: string
 
   @Column({ nullable: true })
-  @ApiProperty()
+  @ApiProperty({ nullable: true })
   education: string
 
   @Column({ nullable: true, enum: gender })
-  @ApiProperty({ enum: gender })
+  @ApiProperty({ enum: gender, nullable: true })
   gender: string
 }

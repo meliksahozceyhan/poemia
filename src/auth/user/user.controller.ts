@@ -6,6 +6,7 @@ import {
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
   ApiTags
 } from '@nestjs/swagger'
@@ -112,7 +113,12 @@ export class UserController {
     type: Boolean,
     description: 'OPEN End point. does not need auth.'
   })
-  @ApiParam({ name: 'username', description: 'username to check', required: true, type: String })
+  @ApiParam({
+    name: 'username',
+    description: 'username to check',
+    required: true,
+    type: String
+  })
   @SkipAuth()
   public async doesUserNameExist(@Param('username') username: string): Promise<boolean> {
     return await this.userService.doesUserNameExists(username)
@@ -120,9 +126,17 @@ export class UserController {
 
   //TODO: This Will be removed when going to prod.
   @Delete('public/delete/:email')
-  @ApiParam({ name: 'email', description: 'email of user to delete', required: true, type: String })
+  @ApiParam({
+    name: 'email',
+    description: 'email of user to delete',
+    required: true,
+    type: String
+  })
   @ApiNoContentResponse({ description: 'Default Response when successfull.' })
   @SkipAuth()
+  @ApiOperation({
+    summary: 'PUBLIC END POINT '
+  })
   public async deleteByEmail(@Param('email') email: string) {
     return await this.userService.deleteByEmail(email)
   }
