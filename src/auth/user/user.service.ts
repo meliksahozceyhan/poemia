@@ -61,6 +61,12 @@ export class UserService {
     return await this.repository.save(user)
   }
 
+  public async findAndActivateUserByEmail(email: string) {
+    const user = await this.repository.findOneByOrFail({ email: email })
+    user.isActive = true
+    return await this.repository.save(user)
+  }
+
   public async addLabelToUser(createLabelDto: CreateLabelDto): Promise<UserLabel> {
     return await this.labelRepository.save(createLabelDto)
   }
