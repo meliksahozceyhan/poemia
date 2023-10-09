@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { User } from './entity/user.entity'
 import { MoreThan, Repository } from 'typeorm'
@@ -14,6 +14,8 @@ import { UserNameChangeDto } from './dto/detail/user-name-change-dto'
 import { UserNameChange } from './entity/user-name-change.entity'
 import { BasePoemiaError } from 'src/sdk/Error/BasePoemiaError'
 import { FcmTokenUpdateDto } from './dto/fcm-token-update-dto'
+import { UpdateUserDto } from './dto/update-user-dto'
+import { UserFollow } from './entity/user-follow.entity'
 
 @Injectable()
 export class UserService {
@@ -22,7 +24,8 @@ export class UserService {
     @InjectRepository(UserLabel) private readonly labelRepository: Repository<UserLabel>,
     @InjectRepository(UserAbout) private readonly aboutRepository: Repository<UserAbout>,
     @InjectRepository(UserView) private readonly viewRepository: Repository<UserView>,
-    @InjectRepository(UserNameChange) private readonly nameChangeRepo: Repository<UserNameChange>
+    @InjectRepository(UserNameChange) private readonly nameChangeRepo: Repository<UserNameChange>,
+    @InjectRepository(UserFollow) private readonly userFollowRepo: Repository<UserFollow>
   ) {}
 
   public async findUserByUserName(username: string): Promise<User> {
@@ -86,10 +89,12 @@ export class UserService {
       this.viewUser(id, user)
     }
     const foundUser = await this.repository.findOneByOrFail({ id: id })
-    if (id === foundUser.id) {
+    if (user.id === foundUser.id) {
       foundUser['self'] = true
       foundUser['views'] = await this.viewRepository.count({ select: { id: true }, where: { user: { id: foundUser.id } } })
     }
+    foundUser['followerCount'] = await this.userFollowRepo.count({ select: { id: true }, where: { user: { id: foundUser.id } } })
+    foundUser['followingCount'] = await this.userFollowRepo.count({ select: { id: true }, where: { follower: { id: foundUser.id } } })
     return foundUser
   }
 
@@ -104,7 +109,7 @@ export class UserService {
     }
     const entity = await this.repository.findOneByOrFail({ id: user.id })
     entity.username = usernameChangeDto.name
-    await this.updateUser(entity)
+    await this.updateUser(user.id, entity, user)
     const changeEntity = this.nameChangeRepo.create()
     changeEntity.user = entity
     changeEntity.before = user.username
@@ -116,8 +121,14 @@ export class UserService {
     return await this.nameChangeRepo.save(changeEntity)
   }
 
-  public async updateUser(user: User) {
-    return await this.repository.save(user)
+  public async updateUser(id: string, updateUserDto: UpdateUserDto, currentUser: User) {
+    if (id !== currentUser.id) {
+      throw new UnauthorizedException('updateUser.notSelf')
+    }
+    const entity = await this.repository.findOneByOrFail({ id: id })
+    console.log(updateUserDto)
+    Object.assign(entity, updateUserDto)
+    return await this.repository.save(entity)
   }
 
   public async deleteByEmail(email: string) {

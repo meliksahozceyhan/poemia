@@ -22,7 +22,7 @@ export class UserActionService {
     }
     const followEntity = this.userFollowRepo.create()
     followEntity.follower = follower
-    followEntity.user.id = id
+    followEntity.user = user
     followEntity.isActive = !user.isPrivate
 
     return await this.userFollowRepo.save(followEntity)

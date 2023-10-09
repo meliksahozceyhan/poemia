@@ -22,3 +22,12 @@ export enum PostTypes {
   QUOTE = 'QUOTE',
   POEM = 'POEM'
 }
+
+export enum FeatherType {
+  POET_CANDIDATE = 'POET_CANDIDATE',
+  POET = 'POET',
+  BRONZE_POET = 'BRONZE_POET',
+  SILVER_POET = 'SILVER_POET',
+  GOLDEN_POET = 'GOLDEN_POET',
+  PLATINUM_POET = 'PLATINUM_POET'
+}

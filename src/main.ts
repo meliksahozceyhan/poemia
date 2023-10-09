@@ -20,7 +20,7 @@ async function bootstrap() {
 
   app.useGlobalFilters(new QueryFailedExceptionFilter(), new EntityNotFoundExceptionFilter(), new BasePoemiaErrorFilter())
   app.setGlobalPrefix('poemia/api/v1')
-  app.useGlobalPipes(new ValidationPipe({ transform: true }))
+  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }))
 
   const config = new DocumentBuilder()
     .setTitle('Poemia')
