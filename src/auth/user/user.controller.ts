@@ -22,6 +22,7 @@ import { UserBlocked } from './entity/user-blocked.entity'
 import { UserNameChange } from './entity/user-name-change.entity'
 import { UserNameChangeDto } from './dto/detail/user-name-change-dto'
 import { FcmTokenUpdateDto } from './dto/fcm-token-update-dto'
+import { UpdateUserDto } from './dto/update-user-dto'
 
 @Controller('user')
 @ApiTags('user')
@@ -151,5 +152,11 @@ export class UserController {
   @ApiOkResponse({ type: User })
   public async getSelfProfile(@CurrentUser() user: User) {
     return await this.userService.findById(user.id)
+  }
+
+  @Put(':id')
+  @ApiOkResponse({ type: UpdateUserDto })
+  public async updateProfile(@Param('id', ParseUUIDPipe) id: string, @Body() updateUserDto: UpdateUserDto, @CurrentUser() currentUser: User) {
+    return await this.userService.updateUser(id, updateUserDto, currentUser)
   }
 }

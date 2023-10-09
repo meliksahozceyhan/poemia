@@ -20,4 +20,8 @@ export class PostService {
     entity.user = user
     return await this.repo.save(entity)
   }
+
+  public async countByUser(user: User): Promise<number> {
+    return await this.repo.count({ select: { id: true }, where: { user: { id: user.id } } })
+  }
 }

@@ -6,6 +6,7 @@ import { Column, Entity, OneToMany, OneToOne } from 'typeorm'
 import { LanguageNames } from 'src/util/languages'
 import { UserAbout } from './user-about.entity'
 import { UserLabel } from './user-label.entity'
+import { FeatherType } from 'src/util/enums'
 
 @Entity()
 export class User extends BaseEntity {
@@ -35,6 +36,11 @@ export class User extends BaseEntity {
   @ApiProperty({ nullable: true })
   bio: string
 
+  @Length(0, 255)
+  @Column({ length: 255, nullable: true })
+  @ApiProperty({ nullable: true })
+  nameSurname: string
+
   @Column()
   @ApiProperty()
   fcmToken: string
@@ -43,6 +49,11 @@ export class User extends BaseEntity {
   @Column({ nullable: true, enum: LanguageNames })
   @ApiProperty({ enum: LanguageNames, nullable: true })
   language: LanguageNames
+
+  @IsEnum(FeatherType)
+  @Column({ nullable: true, enum: FeatherType })
+  @ApiProperty({ enum: FeatherType, nullable: false, default: FeatherType.POET_CANDIDATE })
+  featherType: FeatherType.POET_CANDIDATE
 
   @Column({ default: false })
   @ApiProperty()
@@ -79,6 +90,14 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   @ApiProperty({ nullable: true })
   profileImageUrl: string
+
+  @Column({ default: false })
+  @ApiProperty()
+  isVerified: boolean
+
+  @Column({ nullable: true })
+  @ApiProperty({ nullable: true })
+  coverPhotoUrl: string
 
   @OneToOne(() => UserAbout, (userAbout) => userAbout.user, { eager: true, cascade: true })
   @ApiProperty({ type: UserAbout, nullable: true })
