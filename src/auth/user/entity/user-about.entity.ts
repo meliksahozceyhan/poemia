@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm'
 import { User } from './user.entity'
 import { Exclude } from 'class-transformer'
-import { gender, relationStatus } from 'src/util/enums'
+import { Gender, RelationStatus } from 'src/util/enums'
 import { BaseEntity } from 'src/sdk/entity/base.entity'
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -20,15 +20,15 @@ export class UserAbout extends BaseEntity {
   @ApiProperty({ nullable: true })
   birthDate: Date
 
-  @Column({ enum: relationStatus, nullable: true })
-  @ApiProperty({ nullable: true })
-  relationStatus: string
+  @Column({ enum: RelationStatus, nullable: true })
+  @ApiProperty({ nullable: true, enum: RelationStatus })
+  relationStatus: RelationStatus
 
   @Column({ nullable: true })
   @ApiProperty({ nullable: true })
   education: string
 
-  @Column({ nullable: true, enum: gender })
-  @ApiProperty({ enum: gender, nullable: true })
-  gender: string
+  @Column({ nullable: true, enum: Gender })
+  @ApiProperty({ enum: Gender, nullable: true })
+  gender: Gender
 }

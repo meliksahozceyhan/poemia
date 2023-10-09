@@ -1,30 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger'
-import { IsDate, IsEnum, IsNotEmptyObject, IsObject, IsString, Length } from 'class-validator'
-import { relationStatus } from 'src/util/enums'
-import { Type } from 'class-transformer'
-import { UserReferenceDto } from '../user-reference-dto'
+import { PartialType } from '@nestjs/swagger'
 
-export class CreateAboutDto {
-  @IsObject()
-  @IsNotEmptyObject()
-  @ApiProperty({ required: true })
-  user: UserReferenceDto
+import { UserAbout } from '../../entity/user-about.entity'
 
-  @IsString()
-  @Length(0, 64)
-  @ApiProperty()
-  city?: string
-
-  @IsDate()
-  @ApiProperty()
-  @Type(() => Date)
-  birthdate?: Date | null
-
-  @IsString()
-  @ApiProperty()
-  education: string
-
-  @IsEnum(relationStatus)
-  @ApiProperty({ enum: relationStatus })
-  relationStatus: string
-}
+export class CreateAboutDto extends PartialType(UserAbout) {}

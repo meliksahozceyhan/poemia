@@ -1,6 +1,6 @@
 import { IsNotEmpty, Length } from 'class-validator'
 import { BaseEntity } from 'src/sdk/entity/base.entity'
-import { itemTypes } from 'src/util/enums'
+import { ItemTypes } from 'src/util/enums'
 import { Column, Entity, OneToMany } from 'typeorm'
 import { Item } from './item.entity'
 
@@ -17,8 +17,8 @@ export class ItemType extends BaseEntity {
   code: string
 
   @IsNotEmpty()
-  @Column({ enum: itemTypes })
-  type: string
+  @Column({ enum: ItemTypes })
+  type: ItemTypes
 
   @OneToMany(() => Item, (item) => item.itemType, { onDelete: 'RESTRICT' })
   items: Item[]
