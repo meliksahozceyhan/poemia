@@ -5,12 +5,12 @@ import { Exclude } from 'class-transformer'
 
 @Entity()
 export class UserView extends BaseEntity {
-  @ManyToOne(() => User, { onDelete: 'CASCADE', eager: false, lazy: true })
+  @ManyToOne(() => User, { onDelete: 'CASCADE', eager: true })
   @JoinColumn({ name: 'user_id' })
   @Exclude({ toPlainOnly: true })
   user: User
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, { onDelete: 'CASCADE', eager: true })
   @JoinColumn({ name: 'viewer_id' })
   @Exclude({ toPlainOnly: true })
   viewer: User

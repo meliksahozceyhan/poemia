@@ -12,17 +12,24 @@ import { ApiModule } from './api/api.module'
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard'
 import { MailModule } from './mail/mail.module'
 import { FileModule } from './file/file.module'
+import { PostModule } from './post/post.module'
+import { QueueModule } from './queue/queue.module'
+import { BullImplModule } from './bull-impl/bull-impl.module'
 import mailConfig from './config/mail.config'
+import queueConfig from './config/queue.config'
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ load: [databaseConfig, secretConfig, mailConfig], isGlobal: true }),
+    ConfigModule.forRoot({ load: [databaseConfig, secretConfig, mailConfig, queueConfig], isGlobal: true }),
     DatabaseModule,
     WinstonLoggerModule,
     AuthModule,
     ApiModule,
     MailModule,
-    FileModule
+    FileModule,
+    PostModule,
+    QueueModule,
+    BullImplModule
   ],
   controllers: [AppController],
   providers: [

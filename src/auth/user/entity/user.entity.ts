@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Exclude, instanceToPlain } from 'class-transformer'
-import { IsNotEmpty, Length } from 'class-validator'
+import { IsEnum, IsNotEmpty, Length } from 'class-validator'
 import { BaseEntity } from 'src/sdk/entity/base.entity'
 import { Column, Entity, OneToMany, OneToOne } from 'typeorm'
-import { languageNames } from 'src/util/languages'
+import { LanguageNames } from 'src/util/languages'
 import { UserAbout } from './user-about.entity'
 import { UserLabel } from './user-label.entity'
 
@@ -39,9 +39,10 @@ export class User extends BaseEntity {
   @ApiProperty()
   fcmToken: string
 
-  @Column({ length: 2, nullable: true })
-  @ApiProperty({ enum: languageNames, nullable: true })
-  language: string
+  @IsEnum(LanguageNames)
+  @Column({ nullable: true, enum: LanguageNames })
+  @ApiProperty({ enum: LanguageNames, nullable: true })
+  language: LanguageNames
 
   @Column({ default: false })
   @ApiProperty()
