@@ -14,6 +14,7 @@ import { MailModule } from 'src/mail/mail.module'
 import { UserView } from './user/entity/user-view.entity'
 import { UserNameChange } from './user/entity/user-name-change.entity'
 import { UserFollow } from './user/entity/user-follow.entity'
+import { BullModule } from '@nestjs/bull'
 
 @Module({
   controllers: [AuthController],
@@ -22,6 +23,7 @@ import { UserFollow } from './user/entity/user-follow.entity'
     UserModule,
     MailModule,
     TypeOrmModule.forFeature([User, UserAbout, UserLabel, UserView, UserNameChange, ForgotPassword, UserFollow]),
+    BullModule.registerQueue({ name: 'view' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

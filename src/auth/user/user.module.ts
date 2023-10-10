@@ -11,9 +11,13 @@ import { UserFollow } from './entity/user-follow.entity'
 import { UserNameChange } from './entity/user-name-change.entity'
 import { UserActionService } from './user-actions.service'
 import { UserBlocked } from './entity/user-blocked.entity'
+import { BullModule } from '@nestjs/bull'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, UserAbout, UserLabel, UserView, UserFollow, UserNameChange, UserBlocked])],
+  imports: [
+    BullModule.registerQueue({ name: 'view' }),
+    TypeOrmModule.forFeature([User, UserAbout, UserLabel, UserView, UserFollow, UserNameChange, UserBlocked])
+  ],
   controllers: [UserController],
   providers: [UserService, UserActionService, JwtStrategy],
   exports: [UserService]
