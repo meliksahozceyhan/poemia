@@ -16,6 +16,8 @@ import { BasePoemiaError } from 'src/sdk/Error/BasePoemiaError'
 import { FcmTokenUpdateDto } from './dto/fcm-token-update-dto'
 import { UpdateUserDto } from './dto/update-user-dto'
 import { UserFollow } from './entity/user-follow.entity'
+import { Queue } from 'bull'
+import { InjectQueue } from '@nestjs/bull'
 
 @Injectable()
 export class UserService {
@@ -25,7 +27,8 @@ export class UserService {
     @InjectRepository(UserAbout) private readonly aboutRepository: Repository<UserAbout>,
     @InjectRepository(UserView) private readonly viewRepository: Repository<UserView>,
     @InjectRepository(UserNameChange) private readonly nameChangeRepo: Repository<UserNameChange>,
-    @InjectRepository(UserFollow) private readonly userFollowRepo: Repository<UserFollow>
+    @InjectRepository(UserFollow) private readonly userFollowRepo: Repository<UserFollow>,
+    @InjectQueue('view') private readonly viewQueue: Queue
   ) {}
 
   public async findUserByUserName(username: string): Promise<User> {
@@ -37,7 +40,12 @@ export class UserService {
   }
 
   public async findById(id: string): Promise<User> {
-    return await this.repository.findOneByOrFail({ id: id })
+    const foundUser = await this.repository.findOneByOrFail({ id: id })
+    foundUser['self'] = true
+    foundUser['views'] = await this.viewRepository.count({ select: { id: true }, where: { user: { id: foundUser.id } } })
+    foundUser['followerCount'] = await this.userFollowRepo.count({ select: { id: true }, where: { user: { id: foundUser.id } } })
+    foundUser['followingCount'] = await this.userFollowRepo.count({ select: { id: true }, where: { follower: { id: foundUser.id } } })
+    return foundUser
   }
 
   public async createUser(registerDto: RegisterDto): Promise<User> {
@@ -136,7 +144,7 @@ export class UserService {
   }
 
   private async viewUser(userId: string, viewer: User) {
-    await this.viewRepository.save({ user: { id: userId }, viewer: viewer, isSecret: viewer.isViewPrivate })
+    await this.viewQueue.add('user', { user: { id: userId }, viewer: viewer, isSecret: viewer.isViewPrivate })
   }
 
   public async updateFcmToken(userId: string, fcmTokenUpdateDto: FcmTokenUpdateDto): Promise<User> {
