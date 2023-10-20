@@ -4,9 +4,7 @@ import { User } from './entity/user.entity'
 import { MoreThan, Repository } from 'typeorm'
 import { RegisterDto } from '../dto/register.dto'
 import * as bcrypt from 'bcrypt'
-import { UserLabel } from './entity/user-label.entity'
 import { UserAbout } from './entity/user-about.entity'
-import { CreateLabelDto } from './dto/label/create-label-dto'
 import { CreateAboutDto } from './dto/about/create-about-dto'
 import { UserView } from './entity/user-view.entity'
 import { UpdateAboutDto } from './dto/about/update-about-dto'
@@ -18,16 +16,17 @@ import { UpdateUserDto } from './dto/update-user-dto'
 import { UserFollow } from './entity/user-follow.entity'
 import { Queue } from 'bull'
 import { InjectQueue } from '@nestjs/bull'
+import { UserBadge } from './entity/user-badge.entity'
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly repository: Repository<User>,
-    @InjectRepository(UserLabel) private readonly labelRepository: Repository<UserLabel>,
     @InjectRepository(UserAbout) private readonly aboutRepository: Repository<UserAbout>,
     @InjectRepository(UserView) private readonly viewRepository: Repository<UserView>,
     @InjectRepository(UserNameChange) private readonly nameChangeRepo: Repository<UserNameChange>,
     @InjectRepository(UserFollow) private readonly userFollowRepo: Repository<UserFollow>,
+    @InjectRepository(UserBadge) private readonly userbadgeRepo: Repository<UserBadge>,
     @InjectQueue('view') private readonly viewQueue: Queue
   ) {}
 
@@ -45,6 +44,7 @@ export class UserService {
     foundUser['views'] = await this.viewRepository.count({ select: { id: true }, where: { user: { id: foundUser.id } } })
     foundUser['followerCount'] = await this.userFollowRepo.count({ select: { id: true }, where: { user: { id: foundUser.id } } })
     foundUser['followingCount'] = await this.userFollowRepo.count({ select: { id: true }, where: { follower: { id: foundUser.id } } })
+    foundUser['badgeCount'] = await this.userbadgeRepo.count({ select: { id: true }, where: { user: { id: foundUser.id } } })
     return foundUser
   }
 
@@ -78,10 +78,6 @@ export class UserService {
     return await this.repository.save(user)
   }
 
-  public async addLabelToUser(createLabelDto: CreateLabelDto): Promise<UserLabel> {
-    return await this.labelRepository.save(createLabelDto)
-  }
-
   public async addAboutToUser(createAboutDto: CreateAboutDto): Promise<UserAbout> {
     return await this.aboutRepository.save(createAboutDto)
   }
@@ -103,6 +99,7 @@ export class UserService {
     }
     foundUser['followerCount'] = await this.userFollowRepo.count({ select: { id: true }, where: { user: { id: foundUser.id } } })
     foundUser['followingCount'] = await this.userFollowRepo.count({ select: { id: true }, where: { follower: { id: foundUser.id } } })
+    foundUser['badgeCount'] = await this.userbadgeRepo.count({ select: { id: true }, where: { user: { id: foundUser.id } } })
     return foundUser
   }
 
@@ -144,7 +141,7 @@ export class UserService {
   }
 
   private async viewUser(userId: string, viewer: User) {
-    await this.viewQueue.add('user', { user: { id: userId }, viewer: viewer, isSecret: viewer.isViewPrivate })
+    await this.viewQueue.add('user', { user: { id: userId }, viewer: viewer, isSecret: viewer.isViewPrivate }, { removeOnComplete: true })
   }
 
   public async updateFcmToken(userId: string, fcmTokenUpdateDto: FcmTokenUpdateDto): Promise<User> {

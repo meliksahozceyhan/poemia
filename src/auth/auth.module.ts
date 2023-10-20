@@ -8,13 +8,13 @@ import { UserService } from './user/user.service'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { User } from './user/entity/user.entity'
 import { UserAbout } from './user/entity/user-about.entity'
-import { UserLabel } from './user/entity/user-label.entity'
 import { ForgotPassword } from './entity/forgot-password.entity'
 import { MailModule } from 'src/mail/mail.module'
 import { UserView } from './user/entity/user-view.entity'
 import { UserNameChange } from './user/entity/user-name-change.entity'
 import { UserFollow } from './user/entity/user-follow.entity'
 import { BullModule } from '@nestjs/bull'
+import { UserBadge } from './user/entity/user-badge.entity'
 
 @Module({
   controllers: [AuthController],
@@ -22,7 +22,7 @@ import { BullModule } from '@nestjs/bull'
   imports: [
     UserModule,
     MailModule,
-    TypeOrmModule.forFeature([User, UserAbout, UserLabel, UserView, UserNameChange, ForgotPassword, UserFollow]),
+    TypeOrmModule.forFeature([User, UserAbout, UserView, UserNameChange, ForgotPassword, UserFollow, UserBadge]),
     BullModule.registerQueue({ name: 'view' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],

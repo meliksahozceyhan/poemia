@@ -19,8 +19,7 @@ export class UpdateUserDto extends PartialType(
     'photoCheck',
     'phoneNumber',
     'email',
-    'about',
-    'labels'
+    'about'
   ])
 ) {}
 

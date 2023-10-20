@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Post } from './entity/post.entity'
-import { Repository } from 'typeorm'
+import { Not, Repository } from 'typeorm'
 import { CreatePostDto } from './dto/create-post.dto'
 import { User } from 'src/auth/user/entity/user.entity'
+import { PageResponse } from 'src/sdk/PageResponse'
 
 @Injectable()
 export class PostService {
   constructor(@InjectRepository(Post) private readonly repo: Repository<Post>) {}
 
   public async findById(id: string): Promise<Post> {
-    console.log(id)
     return await this.repo.findOneByOrFail({ id: id })
   }
 
@@ -23,5 +23,15 @@ export class PostService {
 
   public async countByUser(user: User): Promise<number> {
     return await this.repo.count({ select: { id: true }, where: { user: { id: user.id } } })
+  }
+
+  public async getPostList(page: number, size: number, user: User) {
+    const response = await this.repo.findAndCount({
+      where: { user: { id: Not(user.id) } },
+      take: size,
+      skip: page * size,
+      order: { createdAt: 'DESC' }
+    })
+    return new PageResponse(response, page, size)
   }
 }

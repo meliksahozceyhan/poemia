@@ -12,8 +12,8 @@ export class UserAbout extends BaseEntity {
   @Exclude({ toPlainOnly: true })
   user: User
 
-  @Column()
-  @ApiProperty()
+  @Column({ nullable: true })
+  @ApiProperty({ nullable: true })
   city: string
 
   @Column({ type: 'date', nullable: true })
@@ -31,4 +31,8 @@ export class UserAbout extends BaseEntity {
   @Column({ nullable: true, enum: Gender })
   @ApiProperty({ enum: Gender, nullable: true })
   gender: Gender
+
+  @Column({ nullable: true })
+  @ApiProperty({ nullable: true })
+  link: string
 }
