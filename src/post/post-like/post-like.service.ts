@@ -4,6 +4,7 @@ import { Repository } from 'typeorm'
 import { User } from 'src/auth/user/entity/user.entity'
 import { PostLikeDto } from './dto/post-like.dto'
 import { PostService } from '../post.service'
+import { PageResponse } from 'src/sdk/PageResponse'
 
 export class PostLikeService {
   constructor(@InjectRepository(PostLike) private readonly repo: Repository<PostLike>, private readonly postService: PostService) {}
@@ -18,11 +19,13 @@ export class PostLikeService {
   }
 
   public async getLikesOfPost(postId: string, page: number, size: number) {
-    return await this.repo.findAndCount({
+    const response = await this.repo.findAndCount({
       where: { post: { id: postId } },
       skip: page * size,
       take: size,
       order: { createdAt: 'DESC' }
     })
+
+    return new PageResponse(response, page, size)
   }
 }

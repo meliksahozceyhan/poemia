@@ -4,6 +4,7 @@ import { PostRepost } from './entity/post-repost.entity'
 import { Repository } from 'typeorm'
 import { User } from 'src/auth/user/entity/user.entity'
 import { PostService } from '../post.service'
+import { PageResponse } from 'src/sdk/PageResponse'
 
 @Injectable()
 export class PostRepostService {
@@ -20,11 +21,13 @@ export class PostRepostService {
   }
 
   public async getRepostsOfUser(userId: string, page: number, size: number) {
-    return await this.repo.findAndCount({
+    const response = await this.repo.findAndCount({
       where: { user: { id: userId } },
       skip: page * size,
       take: size,
       order: { createdAt: 'DESC' }
     })
+
+    return new PageResponse(response, page, size)
   }
 }

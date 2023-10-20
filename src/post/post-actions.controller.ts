@@ -35,7 +35,7 @@ export class PostActionController {
   })
   @ApiBearerAuth()
   public async viewPost(@Param('postId', ParseUUIDPipe) postId: string, @CurrentUser() user: User) {
-    await this.viewQueue.add('post', { postId, user })
+    await this.viewQueue.add('post', { postId, user }, { removeOnComplete: true })
   }
 
   @Post(':postId/like')

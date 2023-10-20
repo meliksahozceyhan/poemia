@@ -2,8 +2,10 @@ import { ApiProperty } from '@nestjs/swagger'
 import { User } from 'src/auth/user/entity/user.entity'
 import { Post } from 'src/post/entity/post.entity'
 import { BaseEntity } from 'src/sdk/entity/base.entity'
-import { JoinColumn, ManyToOne } from 'typeorm'
+import { Entity, JoinColumn, ManyToOne, Unique } from 'typeorm'
 
+@Entity()
+@Unique(['post', 'user'])
 export class PostView extends BaseEntity {
   @ManyToOne(() => Post, { onDelete: 'CASCADE', eager: false })
   @JoinColumn({ name: 'post_id' })

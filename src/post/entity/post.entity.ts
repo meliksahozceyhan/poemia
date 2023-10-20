@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { Transform } from 'class-transformer'
 import { IsEnum, IsNotEmpty, Length } from 'class-validator'
 import { User } from 'src/auth/user/entity/user.entity'
 import { BaseEntity } from 'src/sdk/entity/base.entity'

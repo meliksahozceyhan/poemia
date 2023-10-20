@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post } from '@nestjs/common'
+import { Body, Controller, Get, Param, ParseIntPipe, ParseUUIDPipe, Post, Query } from '@nestjs/common'
 import { PostService } from './post.service'
 import { CreatePostDto } from './dto/create-post.dto'
 import { CurrentUser } from 'src/decorators/decorators'
 import { User } from 'src/auth/user/entity/user.entity'
 import { Post as PostEnt } from './entity/post.entity'
 import { ApiBearerAuth, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
+import { ApiOkResponsePaginated } from 'src/sdk/swagger-helper/api-ok-response-paginated'
 
 @Controller('post')
 @ApiTags('post')
@@ -27,7 +28,7 @@ export class PostController {
     return await this.postService.createPost(createPostDto, user)
   }
 
-  @Get('/:id')
+  @Get('single/:id')
   @ApiBearerAuth()
   @ApiUnauthorizedResponse({
     description: 'Authentication required. In order for user to see the post. It has to registered with a email.'
@@ -38,5 +39,18 @@ export class PostController {
   })
   public async getPost(@Param('id', ParseUUIDPipe) id: string): Promise<PostEnt> {
     return await this.postService.findById(id)
+  }
+
+  @Get('/all')
+  @ApiUnauthorizedResponse({
+    description: 'Authentication required. In order for user to see the post. It has to registered with a email.'
+  })
+  @ApiOkResponsePaginated(PostEnt)
+  public async getAllPostsByPagination(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('size', ParseIntPipe) size: number,
+    @CurrentUser() user: User
+  ) {
+    return await this.postService.getPostList(page, size, user)
   }
 }

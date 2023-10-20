@@ -10,8 +10,6 @@ import {
   ApiParam,
   ApiTags
 } from '@nestjs/swagger'
-import { CreateLabelDto } from './dto/label/create-label-dto'
-import { UserLabel } from './entity/user-label.entity'
 import { CreateAboutDto } from './dto/about/create-about-dto'
 import { UserAbout } from './entity/user-about.entity'
 import { User } from './entity/user.entity'
@@ -31,14 +29,14 @@ import { UpdateUserDto } from './dto/update-user-dto'
 })
 export class UserController {
   constructor(private readonly userService: UserService, private readonly userActionService: UserActionService) {}
-
+  /* 
   @Post('label/add')
   @ApiOkResponse({
     type: UserLabel
   })
   public async addLabelToUser(@Body() createLabelDto: CreateLabelDto): Promise<UserLabel> {
     return this.userService.addLabelToUser(createLabelDto)
-  }
+  } */
 
   @Post('about/add')
   @ApiCreatedResponse({

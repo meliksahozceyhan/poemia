@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { ClassSerializerInterceptor, Module } from '@nestjs/common'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { ConfigModule } from '@nestjs/config'
@@ -41,6 +41,10 @@ import queueConfig from './config/queue.config'
     {
       provide: 'APP_GUARD',
       useClass: JwtAuthGuard
+    },
+    {
+      provide: 'APP_INTERCEPTOR',
+      useClass: ClassSerializerInterceptor
     }
   ]
 })

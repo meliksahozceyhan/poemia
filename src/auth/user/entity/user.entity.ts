@@ -2,10 +2,9 @@ import { ApiProperty } from '@nestjs/swagger'
 import { Exclude, instanceToPlain } from 'class-transformer'
 import { IsEnum, IsNotEmpty, Length } from 'class-validator'
 import { BaseEntity } from 'src/sdk/entity/base.entity'
-import { Column, Entity, OneToMany, OneToOne } from 'typeorm'
+import { Column, Entity, OneToOne } from 'typeorm'
 import { LanguageNames } from 'src/util/languages'
 import { UserAbout } from './user-about.entity'
-import { UserLabel } from './user-label.entity'
 import { FeatherType } from 'src/util/enums'
 
 @Entity()
@@ -99,13 +98,21 @@ export class User extends BaseEntity {
   @ApiProperty({ nullable: true })
   coverPhotoUrl: string
 
+  @Column({ nullable: true, type: 'text' })
+  @ApiProperty({ nullable: true })
+  detail: string
+
+  @Column({ nullable: true, type: 'text' })
+  @ApiProperty({ nullable: true })
+  interest: string
+
   @OneToOne(() => UserAbout, (userAbout) => userAbout.user, { eager: true, cascade: true })
   @ApiProperty({ type: UserAbout, nullable: true })
   about: UserAbout
 
-  @OneToMany(() => UserLabel, (userLabel) => userLabel.user, { eager: true })
-  @ApiProperty({ type: UserLabel, nullable: true })
-  labels: UserLabel[]
+  /* @OneToMany(() => UserLabel, (userLabel) => userLabel.user, { eager: true })
+  @ApiProperty({ type: [UserLabel], nullable: true })
+  labels: UserLabel[] */
 
   toJSON() {
     return instanceToPlain(this)

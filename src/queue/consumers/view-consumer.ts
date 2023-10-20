@@ -20,6 +20,10 @@ export class ViewConsumer {
   @Process('user')
   async viewUser(job: Job<UserView>) {
     this.logger.debug('Inside view User queue processor')
-    this.viewRepo.save(job.data)
+    try {
+      this.viewRepo.save(job.data)
+    } catch (error) {
+      this.logger.error(error)
+    }
   }
 }
