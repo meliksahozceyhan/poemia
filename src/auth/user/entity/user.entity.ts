@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Exclude, instanceToPlain } from 'class-transformer'
-import { IsEnum, IsNotEmpty, Length } from 'class-validator'
+import { Allow, IsEnum, IsNotEmpty, Length } from 'class-validator'
 import { BaseEntity } from 'src/sdk/entity/base.entity'
 import { Column, Entity, OneToOne } from 'typeorm'
 import { LanguageNames } from 'src/util/languages'
@@ -42,68 +42,82 @@ export class User extends BaseEntity {
 
   @Column()
   @ApiProperty()
+  @Allow()
   fcmToken: string
 
   @IsEnum(LanguageNames)
-  @Column({ nullable: true, enum: LanguageNames })
-  @ApiProperty({ enum: LanguageNames, nullable: true })
+  @Column({ type: 'enum', nullable: true, enum: LanguageNames })
+  @ApiProperty({ type: 'enum', enum: LanguageNames })
   language: LanguageNames
 
   @IsEnum(FeatherType)
-  @Column({ nullable: true, enum: FeatherType })
-  @ApiProperty({ enum: FeatherType, nullable: false, default: FeatherType.POET_CANDIDATE })
+  @Column({ type: 'enum', nullable: true, enum: FeatherType, default: FeatherType.POET_CANDIDATE })
+  @ApiProperty({ enum: FeatherType, default: FeatherType.POET_CANDIDATE })
   featherType: FeatherType.POET_CANDIDATE
 
   @Column({ default: false })
   @ApiProperty()
+  @Allow()
   unlimitedPoem: boolean
 
   @Column()
   @ApiProperty()
+  @Allow()
   androidId: string
 
   @Column({ default: false })
   @ApiProperty()
+  @Allow()
   isPremium: boolean
 
   @Column({ default: 0 })
   @ApiProperty()
+  @Allow()
   pCoin: number
 
   @Column({ default: true })
   @ApiProperty()
+  @Allow()
   isPrivate: boolean
 
   @Column({ default: true })
   @ApiProperty()
+  @Allow()
   isViewPrivate: boolean
 
   @Column({ default: true })
   @ApiProperty()
+  @Allow()
   photoCheck: boolean
 
   @Column({ default: false })
   @ApiProperty()
+  @Allow()
   isActive: boolean
 
   @Column({ nullable: true })
   @ApiProperty({ nullable: true })
+  @Allow()
   profileImageUrl: string
 
   @Column({ default: false })
   @ApiProperty()
+  @Allow()
   isVerified: boolean
 
   @Column({ nullable: true })
   @ApiProperty({ nullable: true })
+  @Allow()
   coverPhotoUrl: string
 
   @Column({ nullable: true, type: 'text' })
   @ApiProperty({ nullable: true })
+  @Allow()
   detail: string
 
   @Column({ nullable: true, type: 'text' })
   @ApiProperty({ nullable: true })
+  @Allow()
   interest: string
 
   @OneToOne(() => UserAbout, (userAbout) => userAbout.user, { eager: true, cascade: true })

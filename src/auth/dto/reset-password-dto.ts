@@ -8,6 +8,7 @@ export class ResetPasswordDto {
   email: string
 
   @ApiProperty({ required: true })
+  @IsNotEmpty()
   newPassword: string
 
   @ApiProperty({ required: true })
