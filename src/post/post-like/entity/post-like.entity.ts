@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { IsBoolean } from 'class-validator'
 import { User } from 'src/auth/user/entity/user.entity'
 import { Post } from 'src/post/entity/post.entity'
 import { BaseEntity } from 'src/sdk/entity/base.entity'
@@ -19,5 +20,6 @@ export class PostLike extends BaseEntity {
 
   @Column({ default: false })
   @ApiProperty({ required: false, nullable: false, default: false })
+  @IsBoolean()
   isSuper: boolean
 }
