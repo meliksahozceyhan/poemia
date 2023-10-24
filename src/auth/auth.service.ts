@@ -20,6 +20,7 @@ import { ConfirmOtpDto } from './dto/confirm-otp-dto'
 import { MailService } from 'src/mail/mail.service'
 import { BasePoemiaError } from 'src/sdk/Error/BasePoemiaError'
 import { UserNotActivatedError } from 'src/sdk/Error/UserNotActivatedError'
+import { RenewPasswordDto } from './dto/renew-password.dto'
 
 @Injectable()
 export class AuthService {
@@ -151,5 +152,16 @@ export class AuthService {
     } else {
       throw new UnauthorizedException()
     }
+  }
+
+  public async renewPasswordOfUser(renewPasswordDto: RenewPasswordDto, user: User): Promise<void> {
+    const result = await this.userService.findByEmail(user.email)
+    if (renewPasswordDto.oldPassword !== null && renewPasswordDto.oldPassword !== undefined) {
+      if (!(await bcrypt.compare(renewPasswordDto.oldPassword, user.password as string))) {
+        throw new UnauthorizedException('Wrong Password')
+      }
+    }
+    result.password = await bcrypt.hash(renewPasswordDto.newPassword as string, 10)
+    this.userService.saveUser(user)
   }
 }

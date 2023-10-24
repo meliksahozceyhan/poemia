@@ -15,9 +15,8 @@ export class Post extends BaseEntity {
   title: string
 
   @IsNotEmpty()
-  @Length(1, 255)
-  @Column({ length: 255 })
-  @ApiProperty({ nullable: true, type: 'string', maximum: 255 })
+  @Column({ nullable: true })
+  @ApiProperty({ nullable: true, type: 'text' })
   content: string
 
   @IsNotEmpty()
@@ -48,12 +47,15 @@ export class Post extends BaseEntity {
   @IsString()
   voicePath: string
 
-  //TODO: Add Emotion Status.
-
   @Column({ nullable: true })
   @ApiProperty({ nullable: true })
   @IsString()
   walpaperPath: string
+
+  @Column({ nullable: true })
+  @ApiProperty({ nullable: true })
+  @IsString()
+  readerVideoPath: string
 
   @Column({ default: true })
   @ApiProperty({ default: true })

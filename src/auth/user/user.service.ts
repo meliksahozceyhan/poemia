@@ -153,4 +153,8 @@ export class UserService {
       return await this.repository.save(user)
     }
   }
+
+  public async saveUser(user: User) {
+    return await this.repository.save(user)
+  }
 }
