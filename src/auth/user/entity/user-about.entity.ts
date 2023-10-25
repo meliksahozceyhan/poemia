@@ -4,7 +4,7 @@ import { Exclude } from 'class-transformer'
 import { Gender, RelationStatus } from 'src/util/enums'
 import { BaseEntity } from 'src/sdk/entity/base.entity'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsDate, IsEnum, IsString } from 'class-validator'
+import { IsDateString, IsEnum, IsString } from 'class-validator'
 
 @Entity()
 export class UserAbout extends BaseEntity {
@@ -20,7 +20,7 @@ export class UserAbout extends BaseEntity {
 
   @Column({ type: 'date', nullable: true })
   @ApiProperty({ nullable: true })
-  @IsDate()
+  @IsDateString()
   birthDate: Date
 
   @Column({ type: 'enum', enum: RelationStatus, nullable: true })

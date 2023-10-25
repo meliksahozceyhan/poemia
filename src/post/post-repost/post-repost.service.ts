@@ -5,6 +5,7 @@ import { Repository } from 'typeorm'
 import { User } from 'src/auth/user/entity/user.entity'
 import { PostService } from '../post.service'
 import { PageResponse } from 'src/sdk/PageResponse'
+import { BasePoemiaError } from 'src/sdk/Error/BasePoemiaError'
 
 @Injectable()
 export class PostRepostService {
@@ -13,6 +14,9 @@ export class PostRepostService {
   public async repostPost(postId: string, user: User) {
     const entity = this.repo.create()
     const post = await this.postService.findById(postId)
+    if (post.user.id === user.id) {
+      throw new BasePoemiaError('post.cannotRepostSelfPost')
+    }
 
     entity.user = user
     entity.post = post

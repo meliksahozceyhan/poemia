@@ -53,4 +53,9 @@ export class PostController {
   ) {
     return await this.postService.getPostList(page, size, user)
   }
+
+  @Get('/countOfPosts')
+  public async countOfPosts(@CurrentUser() user: User): Promise<number> {
+    return this.postService.countPostSharedByUserDaily(user)
+  }
 }

@@ -42,8 +42,8 @@ export class UserController {
   @ApiCreatedResponse({
     type: UserAbout
   })
-  public async addAboutToUser(@Body() createAboutDto: CreateAboutDto): Promise<UserAbout> {
-    return this.userService.addAboutToUser(createAboutDto)
+  public async addAboutToUser(@Body() createAboutDto: CreateAboutDto, @CurrentUser() user: User): Promise<UserAbout> {
+    return this.userService.addAboutToUser(createAboutDto, user)
   }
 
   @Put('about/edit/:id')

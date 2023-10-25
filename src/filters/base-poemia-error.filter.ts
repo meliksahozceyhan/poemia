@@ -8,7 +8,7 @@ export class BasePoemiaErrorFilter implements ExceptionFilter<BasePoemiaError> {
     const context = host.switchToHttp()
     const response = context.getResponse<Response>()
     const request = context.getRequest<Request>()
-    const status = HttpStatus.NOT_FOUND
+    const status = HttpStatus.INTERNAL_SERVER_ERROR
 
     console.error(exception)
 
@@ -19,7 +19,7 @@ export class BasePoemiaErrorFilter implements ExceptionFilter<BasePoemiaError> {
         timestamp: new Date().toISOString(),
         path: request.url,
         message: exception.message,
-        detail: exception.name
+        detail: exception
       })
       .send()
   }

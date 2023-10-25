@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { S3 } from 'aws-sdk'
+import * as uuid from 'uuid'
 
 @Injectable()
 export class FileService {
@@ -7,8 +8,11 @@ export class FileService {
   s3 = new S3()
 
   public async uploadFile(file: Express.Multer.File) {
-    const { originalname } = file
-    return await this.s3_upload(file.buffer, this.AWS_S3_BUCKET, originalname, file.mimetype)
+    const referenceId = uuid.v4()
+    const originalNameSplitted = file.originalname.split('.')
+    const extension = originalNameSplitted[originalNameSplitted.length - 1]
+    const generatedFileName = referenceId + '.' + extension
+    return await this.s3_upload(file.buffer, this.AWS_S3_BUCKET, generatedFileName, file.mimetype)
   }
 
   private async s3_upload(file: Buffer, bucket: string, name: string, mimetype: string) {
