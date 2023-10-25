@@ -13,11 +13,13 @@ import { BullModule } from '@nestjs/bull'
 import { PostRepostService } from './post-repost/post-repost.service'
 import { PostView } from './post-view/entity/post-view.entity'
 import { PostRepost } from './post-repost/entity/post-repost.entity'
+import { PostHighlightService } from './post-highlight/post-highlight.service'
+import { PostHighlight } from './post-highlight/entity/post-highlight.entity'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Post, PostComment, PostLike, PostView, PostRepost]), BullModule.registerQueue({ name: 'view' })],
+  imports: [TypeOrmModule.forFeature([Post, PostComment, PostLike, PostView, PostRepost, PostHighlight]), BullModule.registerQueue({ name: 'view' })],
   controllers: [PostController, PostActionController],
-  providers: [PostService, PostCommentService, PostLikeService, PostViewService, PostRepostService],
+  providers: [PostService, PostCommentService, PostLikeService, PostViewService, PostRepostService, PostHighlightService],
   exports: [PostViewService]
 })
 export class PostModule {}

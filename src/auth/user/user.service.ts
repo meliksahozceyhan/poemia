@@ -78,8 +78,11 @@ export class UserService {
     return await this.repository.save(user)
   }
 
-  public async addAboutToUser(createAboutDto: CreateAboutDto): Promise<UserAbout> {
-    return await this.aboutRepository.save(createAboutDto)
+  public async addAboutToUser(createAboutDto: CreateAboutDto, user: User): Promise<UserAbout> {
+    const userAbout = this.aboutRepository.create()
+    Object.assign(userAbout, createAboutDto)
+    userAbout.user = user
+    return await this.aboutRepository.save(userAbout)
   }
 
   public async updateAboutOfUser(id: string, dto: UpdateAboutDto) {
