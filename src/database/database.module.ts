@@ -19,7 +19,7 @@ import { readFileSync } from 'fs'
         schema: configService.get('database.schema'),
         autoLoadEntities: true,
         synchronize: true,
-        logging: true,
+        logging: false,
         namingStrategy: new SnakeNamingStrategy(),
         poolSize: 100,
         extra: {
