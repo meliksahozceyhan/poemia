@@ -112,9 +112,10 @@ export class UserService {
   }
 
   public async changeUsername(usernameChangeDto: UserNameChangeDto, user: User): Promise<UserNameChange> {
-    if (this.nameChangeRepo.exist({ where: { expiresAt: MoreThan(new Date()) } })) {
+    //TODO: Uncomment this section.
+    /*  if (this.nameChangeRepo.exist({ where: { expiresAt: MoreThan(new Date()) } })) {
       throw new BasePoemiaError('You have changed your username less than 15 days ago')
-    }
+    } */
     const entity = await this.repository.findOneByOrFail({ id: user.id })
     entity.username = usernameChangeDto.name
     await this.updateUser(user.id, entity, user)
