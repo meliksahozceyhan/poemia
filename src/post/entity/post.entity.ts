@@ -8,16 +8,21 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
 
 @Entity()
 export class Post extends BaseEntity {
-  @IsNotEmpty()
+  @IsString()
   @Length(1, 64)
   @Column({ length: 64, nullable: true })
   @ApiProperty({ nullable: true, type: 'string', maximum: 64 })
   title: string
 
-  @IsNotEmpty()
-  @Column({ nullable: true })
+  @IsString()
+  @Column({ nullable: true, type: 'text' })
   @ApiProperty({ nullable: true, type: 'text' })
   content: string
+
+  @Column({ nullable: true, type: 'text' })
+  @ApiProperty({ nullable: true })
+  @IsString()
+  contentHtml: string
 
   @IsNotEmpty()
   @IsEnum(PostTypes)
@@ -66,4 +71,9 @@ export class Post extends BaseEntity {
   @ApiProperty({ default: false })
   @IsBoolean()
   isEditorsChoice: boolean
+
+  @Column({ default: false })
+  @ApiProperty({ default: false })
+  @IsBoolean()
+  copyRight: boolean
 }

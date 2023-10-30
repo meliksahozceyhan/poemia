@@ -15,6 +15,7 @@ import { FileModule } from './file/file.module'
 import { PostModule } from './post/post.module'
 import { QueueModule } from './queue/queue.module'
 import { BullImplModule } from './bull-impl/bull-impl.module'
+import { StoryModule } from './story/story.module'
 import mailConfig from './config/mail.config'
 import queueConfig from './config/queue.config'
 
@@ -29,7 +30,8 @@ import queueConfig from './config/queue.config'
     FileModule,
     PostModule,
     QueueModule,
-    BullImplModule
+    BullImplModule,
+    StoryModule
   ],
   controllers: [AppController],
   providers: [
