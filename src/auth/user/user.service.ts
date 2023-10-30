@@ -135,7 +135,6 @@ export class UserService {
       throw new UnauthorizedException('updateUser.notSelf')
     }
     const entity = await this.repository.findOneByOrFail({ id: id })
-    console.log(updateUserDto)
     Object.assign(entity, updateUserDto)
     return await this.repository.save(entity)
   }
