@@ -120,6 +120,10 @@ export class User extends BaseEntity {
   @Allow()
   interest: string
 
+  @Column({ nullable: false, type: 'int', default: 0 })
+  @ApiProperty({ nullable: false })
+  userPoint: number
+
   @OneToOne(() => UserAbout, (userAbout) => userAbout.user, { eager: true, cascade: true })
   @ApiProperty({ type: UserAbout, nullable: true })
   about: UserAbout

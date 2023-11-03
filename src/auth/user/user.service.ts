@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { User } from './entity/user.entity'
-import { MoreThan, Repository } from 'typeorm'
+import { ILike, Repository } from 'typeorm'
 import { RegisterDto } from '../dto/register.dto'
 import * as bcrypt from 'bcrypt'
 import { UserAbout } from './entity/user-about.entity'
@@ -10,13 +10,13 @@ import { UserView } from './entity/user-view.entity'
 import { UpdateAboutDto } from './dto/about/update-about-dto'
 import { UserNameChangeDto } from './dto/detail/user-name-change-dto'
 import { UserNameChange } from './entity/user-name-change.entity'
-import { BasePoemiaError } from 'src/sdk/Error/BasePoemiaError'
 import { FcmTokenUpdateDto } from './dto/fcm-token-update-dto'
 import { UpdateUserDto } from './dto/update-user-dto'
 import { UserFollow } from './entity/user-follow.entity'
 import { Queue } from 'bull'
 import { InjectQueue } from '@nestjs/bull'
 import { UserBadge } from './entity/user-badge.entity'
+import { PageResponse } from 'src/sdk/PageResponse'
 
 @Injectable()
 export class UserService {
@@ -159,5 +159,58 @@ export class UserService {
 
   public async saveUser(user: User) {
     return await this.repository.save(user)
+  }
+
+  public async getFollowersOfUser(id: string, page: number, size: number) {
+    const result = await this.userFollowRepo.findAndCount({
+      where: {
+        user: { id: id },
+        isActive: true
+      },
+      skip: page * size,
+      take: size,
+      order: { createdAt: 'desc' }
+    })
+    return new PageResponse(result, page, size)
+  }
+
+  public async getFollowingsOfUser(id: string, page: number, size: number) {
+    const result = await this.userFollowRepo.findAndCount({
+      where: {
+        follower: { id: id },
+        isActive: true
+      },
+      skip: page * size,
+      take: size,
+      order: { createdAt: 'DESC' }
+    })
+    return new PageResponse(result, page, size)
+  }
+
+  public async getSelfProfileViewers(page: number, size: number, user: User) {
+    const profileViews = await this.viewRepository.findAndCount({
+      where: {
+        user: {
+          id: user.id
+        }
+      },
+      skip: page * size,
+      take: size,
+      order: { createdAt: 'DESC' }
+    })
+
+    return new PageResponse(profileViews, page, size)
+  }
+
+  public async searchUsersByUsername(username: string, page: number, size: number) {
+    const users = await this.repository.findAndCount({
+      where: {
+        username: ILike(`%${username.toLocaleLowerCase()}%`)
+      },
+      skip: page * size,
+      take: size,
+      order: { username: 'ASC' }
+    })
+    return new PageResponse(users, page, size)
   }
 }

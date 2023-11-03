@@ -17,6 +17,7 @@ export class PostService {
 
   public async createPost(createPostDto: CreatePostDto, user: User): Promise<Post> {
     //TODO: Add premium check for user and calculate if the user has the permission to create post(Count by day.) 10 is the limit. Do not care the posttype
+    //TODO: Add Point increase to here.
     const entity = this.repo.create()
     Object.assign(entity, createPostDto)
     entity.user = user
