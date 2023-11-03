@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsBoolean, IsEnum, IsNotEmpty, IsObject, IsString, Length } from 'class-validator'
+import { IsArray, IsBoolean, IsEnum, IsNotEmpty, IsObject, IsString, Length } from 'class-validator'
 import { User } from 'src/auth/user/entity/user.entity'
 import { BaseEntity } from 'src/sdk/entity/base.entity'
 import { PostTypes } from 'src/util/enums'
@@ -9,7 +9,7 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
 @Entity()
 export class Post extends BaseEntity {
   @IsString()
-  @Length(1, 64)
+  @Length(0, 64)
   @Column({ length: 64, nullable: true })
   @ApiProperty({ nullable: true, type: 'string', maximum: 64 })
   title: string
@@ -76,4 +76,8 @@ export class Post extends BaseEntity {
   @ApiProperty({ default: false })
   @IsBoolean()
   copyRight: boolean
+
+  @Column({ type: 'simple-array', nullable: true })
+  @IsArray()
+  tags: string[]
 }

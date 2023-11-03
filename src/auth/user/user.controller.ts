@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, ParseUUIDPipe, Post, Put, Query } from '@nestjs/common'
 import { UserService } from './user.service'
 import {
   ApiCreatedResponse,
@@ -8,7 +8,8 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiTags
+  ApiTags,
+  ApiUnauthorizedResponse
 } from '@nestjs/swagger'
 import { CreateAboutDto } from './dto/about/create-about-dto'
 import { UserAbout } from './entity/user-about.entity'
@@ -21,6 +22,8 @@ import { UserNameChange } from './entity/user-name-change.entity'
 import { UserNameChangeDto } from './dto/detail/user-name-change-dto'
 import { FcmTokenUpdateDto } from './dto/fcm-token-update-dto'
 import { UpdateUserDto } from './dto/update-user-dto'
+import { ApiOkResponsePaginated } from 'src/sdk/swagger-helper/api-ok-response-paginated'
+import { UserFollow } from './entity/user-follow.entity'
 
 @Controller('user')
 @ApiTags('user')
@@ -54,7 +57,7 @@ export class UserController {
     return await this.userService.updateAboutOfUser(id, updateAbout)
   }
 
-  @Get(':id')
+  @Get('/:id')
   @ApiOkResponse({
     type: User
   })
@@ -156,5 +159,57 @@ export class UserController {
   @ApiOkResponse({ type: UpdateUserDto })
   public async updateProfile(@Param('id', ParseUUIDPipe) id: string, @Body() updateUserDto: UpdateUserDto, @CurrentUser() currentUser: User) {
     return await this.userService.updateUser(id, updateUserDto, currentUser)
+  }
+
+  @Get('/follower/:id')
+  @ApiUnauthorizedResponse({
+    description: 'Authentication required. In order for user to see the post. It has to registered with a email.'
+  })
+  @ApiOkResponsePaginated(UserFollow)
+  public async getFollowersOfUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('size', ParseIntPipe) size: number
+  ) {
+    return await this.userService.getFollowersOfUser(id, page, size)
+  }
+
+  @Get('/following/:id')
+  @ApiUnauthorizedResponse({
+    description: 'Authentication required. In order for user to see the post. It has to registered with a email.'
+  })
+  @ApiOkResponsePaginated(UserFollow)
+  public async getFollowingsOfUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('size', ParseIntPipe) size: number
+  ) {
+    return await this.userService.getFollowingsOfUser(id, page, size)
+  }
+
+  @Get('/selfProfileViewers')
+  @ApiUnauthorizedResponse({
+    description: 'Authentication required. In order for user to see the post. It has to registered with a email.'
+  })
+  @ApiOkResponsePaginated(UserFollow)
+  public async getSelfProfileViewers(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('size', ParseIntPipe) size: number,
+    @CurrentUser() user: User
+  ) {
+    return await this.userService.getSelfProfileViewers(page, size, user)
+  }
+
+  @Get('/search/searchUserByUsername')
+  @ApiUnauthorizedResponse({
+    description: 'Authentication required. In order for user to see the post. It has to registered with a email.'
+  })
+  @ApiOkResponsePaginated(User)
+  public async searchUsersByUserName(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('size', ParseIntPipe) size: number,
+    @Query('username') username: string
+  ) {
+    return await this.userService.searchUsersByUsername(username, page, size)
   }
 }
