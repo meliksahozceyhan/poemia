@@ -30,7 +30,6 @@ export class PostService {
 
   public async getPostList(page: number, size: number, user: User) {
     const response = await this.repo.findAndCount({
-      where: { user: { id: Not(user.id) } },
       take: size,
       skip: page * size,
       order: { createdAt: 'DESC' }
