@@ -4,7 +4,13 @@ import { User } from 'src/auth/user/entity/user.entity'
 import { BaseEntity } from 'src/sdk/entity/base.entity'
 import { PostTypes } from 'src/util/enums'
 import { LanguageNames } from 'src/util/languages'
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm'
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany } from 'typeorm'
+import { PostHighlight } from '../post-highlight/entity/post-highlight.entity'
+import { PostLike } from '../post-like/entity/post-like.entity'
+import { PostRepost } from '../post-repost/entity/post-repost.entity'
+import { PostView } from '../post-view/entity/post-view.entity'
+import { PostComment } from '../post-comment/entity/post-comment.entity'
+import { UserReferenceDto } from 'src/auth/user/dto/user-reference-dto'
 
 @Entity()
 export class Post extends BaseEntity {
@@ -80,4 +86,41 @@ export class Post extends BaseEntity {
   @Column({ type: 'simple-array', nullable: true })
   @IsArray()
   tags: string[]
+
+  @ManyToMany(() => User, { cascade: true, onDelete: 'CASCADE', onUpdate: 'CASCADE', eager: true })
+  @JoinTable({ name: 'post_user' })
+  @IsArray()
+  @ApiProperty({ type: [UserReferenceDto] })
+  taggedUsers: User[]
+
+  @OneToMany(() => PostView, 'post')
+  views: PostView[]
+
+  @OneToMany(() => PostLike, 'post')
+  likes: PostLike[]
+
+  @OneToMany(() => PostComment, 'post')
+  comments: PostComment[]
+
+  @OneToMany(() => PostHighlight, 'post')
+  highlights: PostHighlight[]
+
+  @OneToMany(() => PostRepost, 'post')
+  reposts: PostRepost[]
+
+  likeCount: number
+
+  superLikeCount: number
+  isHighlighted: PostHighlight
+  isLiked: PostLike
+  isRepoemed: PostRepost
+
+  viewCount: number
+
+  repostCount: number
+
+  commentCount: number
+
+  lastLike: PostLike
+  lastComment: PostComment
 }

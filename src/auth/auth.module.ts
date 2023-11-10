@@ -15,10 +15,11 @@ import { UserNameChange } from './user/entity/user-name-change.entity'
 import { UserFollow } from './user/entity/user-follow.entity'
 import { BullModule } from '@nestjs/bull'
 import { UserBadge } from './user/entity/user-badge.entity'
+import { JwtStrategy } from './strategy/jwt.strategy'
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, UserService],
+  providers: [AuthService, UserService, JwtStrategy],
   imports: [
     UserModule,
     MailModule,

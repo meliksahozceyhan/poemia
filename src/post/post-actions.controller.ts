@@ -1,4 +1,4 @@
-import { Body, Controller, Param, ParseUUIDPipe, Post } from '@nestjs/common'
+import { Body, Controller, Get, Param, ParseIntPipe, ParseUUIDPipe, Post, Query } from '@nestjs/common'
 import { PostLikeService } from './post-like/post-like.service'
 import { PostCommentService } from './post-comment/post-comment.service'
 import { InjectQueue } from '@nestjs/bull'
@@ -61,6 +61,23 @@ export class PostActionController {
     return await this.postLikeService.likePost(postId, postLikeDto, user)
   }
 
+  @Get(':postId/like')
+  @ApiCreatedResponse({
+    type: PostLike,
+    description: 'When this api triggered. response with an empty body will return.'
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Authentication required. In order for user to see the post. It has to registered with a email.'
+  })
+  @ApiBearerAuth()
+  public async getPostLike(
+    @Param('postId', ParseUUIDPipe) postId: string,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('size', ParseIntPipe) size: number
+  ) {
+    return await this.postLikeService.getLikesOfPost(postId, page, size)
+  }
+
   @Post(':postId/comment')
   @ApiCreatedResponse({
     type: PostComment,
@@ -76,6 +93,23 @@ export class PostActionController {
     @CurrentUser() user: User
   ) {
     return await this.postCommentService.createCommentOnPost(postId, postCommentCreateDto, user)
+  }
+
+  @Get(':postId/comment')
+  @ApiCreatedResponse({
+    type: PostComment,
+    description: 'When this api triggered. response with an empty body will return.'
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Authentication required. In order for user to see the post. It has to registered with a email.'
+  })
+  @ApiBearerAuth()
+  public async getPostComments(
+    @Param('postId', ParseUUIDPipe) postId: string,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('size', ParseIntPipe) size: number
+  ) {
+    return await this.postCommentService.getCommentsOfPost(postId, page, size)
   }
 
   @Post(':postId/repost')
@@ -105,5 +139,18 @@ export class PostActionController {
   @ApiBearerAuth()
   public async highLightPost(@Param('postId', ParseUUIDPipe) postId: string, @CurrentUser() user: User) {
     await this.postHighlightService.highlightPost(postId, user)
+  }
+
+  @Post(':commentId/comment/like')
+  @ApiCreatedResponse({
+    type: PostComment,
+    description: 'When this api triggered. response with an empty body will return.'
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Authentication required. In order for user to see the post. It has to registered with a email.'
+  })
+  @ApiBearerAuth()
+  public async likeComment(@Param('commentId', ParseUUIDPipe) commentId: string, @CurrentUser() user: User) {
+    return await this.postCommentService.likeComment(commentId, user)
   }
 }

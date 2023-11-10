@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable, forwardRef } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { PostHighlight } from './entity/post-highlight.entity'
 import { Repository } from 'typeorm'
@@ -8,7 +8,10 @@ import { BasePoemiaError } from 'src/sdk/Error/BasePoemiaError'
 
 @Injectable()
 export class PostHighlightService {
-  constructor(@InjectRepository(PostHighlight) private readonly repo: Repository<PostHighlight>, private readonly postService: PostService) {}
+  constructor(
+    @InjectRepository(PostHighlight) private readonly repo: Repository<PostHighlight>,
+    @Inject(forwardRef(() => PostService)) private readonly postService: PostService
+  ) {}
 
   public async highlightPost(id: string, user: User) {
     const post = await this.postService.findById(id)

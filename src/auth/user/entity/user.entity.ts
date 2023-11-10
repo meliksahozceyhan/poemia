@@ -2,10 +2,11 @@ import { ApiProperty } from '@nestjs/swagger'
 import { Exclude, instanceToPlain } from 'class-transformer'
 import { Allow, IsEnum, IsNotEmpty, Length } from 'class-validator'
 import { BaseEntity } from 'src/sdk/entity/base.entity'
-import { Column, Entity, OneToOne } from 'typeorm'
+import { Column, Entity, OneToMany, OneToOne } from 'typeorm'
 import { LanguageNames } from 'src/util/languages'
 import { UserAbout } from './user-about.entity'
 import { FeatherType } from 'src/util/enums'
+import { UserFollow } from './user-follow.entity'
 
 @Entity()
 export class User extends BaseEntity {
@@ -128,9 +129,17 @@ export class User extends BaseEntity {
   @ApiProperty({ type: UserAbout, nullable: true })
   about: UserAbout
 
+  @OneToMany(() => UserFollow, 'user')
+  followers: UserFollow[]
+
+  @OneToMany(() => UserFollow, 'follower')
+  following: UserFollow[]
+
   /* @OneToMany(() => UserLabel, (userLabel) => userLabel.user, { eager: true })
   @ApiProperty({ type: [UserLabel], nullable: true })
   labels: UserLabel[] */
+
+  isFollowed: UserFollow
 
   toJSON() {
     return instanceToPlain(this)
