@@ -53,10 +53,8 @@ export class StoryService {
   public async getStoriesWithEm(page: number, size: number, user: User): Promise<PageResponse<Story>> {
     const queryBuilder = this.entityManager.createQueryBuilder(Story, 'story')
     const result = await queryBuilder
-      .leftJoinAndSelect(StoryView, 'storyViewed', 'storyViewed.story.id = story.id', { userId: user.id })
       .leftJoinAndMapOne('story.user', 'story.user', 'user', 'story.user.id = user.id')
       .leftJoinAndMapOne('story.isViewed', 'story.views', 'storyView', 'storyView.user.id = :userId', { userId: user.id })
-      .addSelect('storyViewed.id', 'isViewed')
       .where('story.user.id != :userId AND story.expiresAt > :expiresAt', { userId: user.id, expiresAt: new Date() })
       .andWhere('story.language = :language', { language: user.language })
       .skip(page * size)

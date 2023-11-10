@@ -15,11 +15,18 @@ import { PostView } from './post-view/entity/post-view.entity'
 import { PostRepost } from './post-repost/entity/post-repost.entity'
 import { PostHighlightService } from './post-highlight/post-highlight.service'
 import { PostHighlight } from './post-highlight/entity/post-highlight.entity'
+import { UserModule } from 'src/auth/user/user.module'
+import { PostCommentLike } from './post-comment/post-comment-like/entity/post-comment-like.entity'
+import { PostCommentLikeService } from './post-comment/post-comment-like/post-comment-like.service'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Post, PostComment, PostLike, PostView, PostRepost, PostHighlight]), BullModule.registerQueue({ name: 'view' })],
+  imports: [
+    TypeOrmModule.forFeature([Post, PostComment, PostLike, PostView, PostRepost, PostHighlight, PostCommentLike]),
+    BullModule.registerQueue({ name: 'view' }),
+    UserModule
+  ],
   controllers: [PostController, PostActionController],
-  providers: [PostService, PostCommentService, PostLikeService, PostViewService, PostRepostService, PostHighlightService],
+  providers: [PostService, PostCommentService, PostLikeService, PostViewService, PostRepostService, PostHighlightService, PostCommentLikeService],
   exports: [PostViewService]
 })
 export class PostModule {}

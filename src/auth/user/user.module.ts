@@ -4,7 +4,6 @@ import { UserController } from './user.controller'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { User } from './entity/user.entity'
 import { UserAbout } from './entity/user-about.entity'
-import { JwtStrategy } from '../strategy/jwt.strategy'
 import { UserView } from './entity/user-view.entity'
 import { UserFollow } from './entity/user-follow.entity'
 import { UserNameChange } from './entity/user-name-change.entity'
@@ -19,7 +18,7 @@ import { UserBadge } from './entity/user-badge.entity'
     TypeOrmModule.forFeature([User, UserAbout, UserView, UserFollow, UserNameChange, UserBlocked, UserBadge])
   ],
   controllers: [UserController],
-  providers: [UserService, UserActionService, JwtStrategy],
+  providers: [UserService, UserActionService],
   exports: [UserService]
 })
 export class UserModule {}

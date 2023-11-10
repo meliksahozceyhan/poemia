@@ -58,4 +58,36 @@ export class PostController {
   public async countOfPosts(@CurrentUser() user: User): Promise<number> {
     return this.postService.countPostSharedByUserDaily(user)
   }
+
+  //@SkipAuth()
+  @Get('/feed')
+  @ApiBearerAuth()
+  @ApiUnauthorizedResponse({
+    description: 'Authentication required. In order for user to see the post. It has to registered with a email.'
+  })
+  @ApiOkResponse({
+    description: 'Use This end-point in order to get a singular post',
+    type: PostEnt
+  })
+  public async getFeed(@Query('page', ParseIntPipe) page: number, @Query('size', ParseIntPipe) size: number, @CurrentUser() user: User) {
+    return await this.postService.getFeedWithUser(page, size, user.id)
+  }
+
+  @Get('/user/:id')
+  @ApiBearerAuth()
+  @ApiUnauthorizedResponse({
+    description: 'Authentication required. In order for user to see the post. It has to registered with a email.'
+  })
+  @ApiOkResponse({
+    description: 'Use This end-point in order to get a singular post',
+    type: PostEnt
+  })
+  public async getPostsOfUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('size', ParseIntPipe) size: number,
+    @CurrentUser() user: User
+  ) {
+    return await this.postService.getPostsOfUser(page, size, id, user.id)
+  }
 }
