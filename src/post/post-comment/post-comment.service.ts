@@ -50,7 +50,7 @@ export class PostCommentService {
         userId: requestedBy
       })
       //.orderBy('post.postHighlight')
-      .addOrderBy('postComment.createdAt')
+      .addOrderBy('postComment.createdAt', 'DESC')
       .where('postComment.post.id = :postId', { postId: postId })
       .getManyAndCount()
 
