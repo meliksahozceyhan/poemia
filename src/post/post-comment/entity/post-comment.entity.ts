@@ -33,4 +33,6 @@ export class PostComment extends BaseEntity {
   likes: PostCommentLike[]
 
   likeCount: number
+
+  isLiked: PostCommentLike
 }

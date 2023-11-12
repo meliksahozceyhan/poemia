@@ -107,9 +107,10 @@ export class PostActionController {
   public async getPostComments(
     @Param('postId', ParseUUIDPipe) postId: string,
     @Query('page', ParseIntPipe) page: number,
-    @Query('size', ParseIntPipe) size: number
+    @Query('size', ParseIntPipe) size: number,
+    @CurrentUser() user: User
   ) {
-    return await this.postCommentService.getCommentsOfPost(postId, page, size)
+    return await this.postCommentService.getCommentsOfPost(postId, page, size, user.id)
   }
 
   @Post(':postId/repost')

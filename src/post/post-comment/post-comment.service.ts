@@ -37,7 +37,7 @@ export class PostCommentService {
     return new PageResponse(response, page, size)
   } */
 
-  public async getCommentsOfPost(postId: string, page: number, size: number) {
+  public async getCommentsOfPost(postId: string, page: number, size: number, requestedBy: string) {
     const queryBuilder = this.entityManager.createQueryBuilder(PostComment, 'postComment')
 
     const result = await queryBuilder
@@ -46,8 +46,12 @@ export class PostCommentService {
       .loadRelationCountAndMap('post.likeCount', 'postComment.likes')
       .skip(page * size)
       .take(size)
+      .leftJoinAndMapOne('postComment.isLiked', 'postComment.likes', 'postCommentLiked', 'postCommentLiked.user.id = :userId', {
+        userId: requestedBy
+      })
       //.orderBy('post.postHighlight')
       .addOrderBy('postComment.createdAt')
+      .where('postComment.post.id = :postId', { postId: postId })
       .getManyAndCount()
 
     return new PageResponse(result, page, size)
