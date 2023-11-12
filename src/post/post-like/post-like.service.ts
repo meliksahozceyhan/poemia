@@ -11,11 +11,21 @@ export class PostLikeService {
 
   public async likePost(postId: string, postLikeDto: PostLikeDto, user: User): Promise<PostLike> {
     const post = await this.postService.findById(postId)
-    const postLike = this.repo.create()
-    postLike.post = post
-    postLike.user = user
-    postLike.isSuper = postLikeDto.isSuper
-    return await this.repo.save(postLike)
+    const isPreviouslyLiked = await this.repo.findOne({
+      where: {
+        post: { id: post.id },
+        user: { id: user.id }
+      }
+    })
+    if (isPreviouslyLiked !== null && isPreviouslyLiked !== undefined && postLikeDto.isSuper) {
+      return await this.updateLikeToSuperLike(isPreviouslyLiked)
+    } else {
+      const postLike = this.repo.create()
+      postLike.post = post
+      postLike.user = user
+      postLike.isSuper = postLikeDto.isSuper
+      return await this.repo.save(postLike)
+    }
   }
 
   public async getLikesOfPost(postId: string, page: number, size: number) {
@@ -27,5 +37,10 @@ export class PostLikeService {
     })
 
     return new PageResponse(response, page, size)
+  }
+
+  public async updateLikeToSuperLike(postLike: PostLike) {
+    postLike.isSuper = true
+    return this.repo.save(postLike)
   }
 }

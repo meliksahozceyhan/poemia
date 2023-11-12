@@ -20,12 +20,20 @@ export class UserActionService {
     if (follower.id === id) {
       throw new BasePoemiaError('user.canNotFollowYourself')
     }
-    const followEntity = this.userFollowRepo.create()
-    followEntity.follower = follower
-    followEntity.user = user
-    followEntity.isActive = !user.isPrivate
+    const isExistsPreviously = await this.userFollowRepo.findOne({
+      where: { user: { id: user.id }, follower: { id: follower.id } }
+    })
 
-    return await this.userFollowRepo.save(followEntity)
+    if (isExistsPreviously !== null && isExistsPreviously !== undefined) {
+      return await this.unfollowUser(isExistsPreviously)
+    } else {
+      const followEntity = this.userFollowRepo.create()
+      followEntity.follower = follower
+      followEntity.user = user
+      followEntity.isActive = !user.isPrivate
+
+      return await this.userFollowRepo.save(followEntity)
+    }
   }
 
   public async blockUser(id: string, user: User) {
@@ -34,5 +42,9 @@ export class UserActionService {
     blockEntity.blocks.id = id
 
     return await this.userBlockedRepo.save(blockEntity)
+  }
+
+  public async unfollowUser(userfollowEntity: UserFollow) {
+    await this.userFollowRepo.remove(userfollowEntity)
   }
 }
