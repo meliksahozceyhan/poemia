@@ -1,7 +1,7 @@
-import { Controller, Get } from '@nestjs/common'
-import { AppService } from './app.service'
+import { Body, Controller, Get, Post } from '@nestjs/common'
+import { AppService, DenemeDto } from './app.service'
 import { ApiTags } from '@nestjs/swagger'
-import { CurrentUser } from './decorators/decorators'
+import { CurrentUser, SkipAuth } from './decorators/decorators'
 import { endOfDay, startOfDay } from 'date-fns'
 
 @Controller()
@@ -17,5 +17,11 @@ export class AppController {
     console.log(startOfDay(dateStart))
     console.log(endOfDay(dateStart))
     return this.appService.getHello()
+  }
+
+  @Post()
+  @SkipAuth()
+  getDeneme(@Body() dto: DenemeDto): any {
+    return this.appService.checkUserName(dto)
   }
 }

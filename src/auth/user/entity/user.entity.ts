@@ -1,6 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger'
 import { Exclude, instanceToPlain } from 'class-transformer'
-import { Allow, IsEnum, IsNotEmpty, Length } from 'class-validator'
+import { Allow, IsEnum, IsNotEmpty, Length, Matches } from 'class-validator'
 import { BaseEntity } from 'src/sdk/entity/base.entity'
 import { Column, Entity, OneToMany, OneToOne } from 'typeorm'
 import { LanguageNames } from 'src/util/languages'
@@ -13,11 +13,15 @@ export class User extends BaseEntity {
   @IsNotEmpty()
   @Length(1, 64)
   @Column({ length: 64, nullable: false, unique: true })
+  @ApiProperty()
   email: string
 
   @IsNotEmpty()
   @Column({ nullable: false, unique: true })
   @ApiProperty()
+  @Matches(/^[a-zA-Z0-9_]+$/, {
+    message: 'username must contain only letters numbers and _ '
+  })
   username: string
 
   @IsNotEmpty()
@@ -129,15 +133,13 @@ export class User extends BaseEntity {
   @ApiProperty({ type: UserAbout, nullable: true })
   about: UserAbout
 
+  @ApiHideProperty()
   @OneToMany(() => UserFollow, 'user')
   followers: UserFollow[]
 
+  @ApiHideProperty()
   @OneToMany(() => UserFollow, 'follower')
   following: UserFollow[]
-
-  /* @OneToMany(() => UserLabel, (userLabel) => userLabel.user, { eager: true })
-  @ApiProperty({ type: [UserLabel], nullable: true })
-  labels: UserLabel[] */
 
   isFollowed: UserFollow
 

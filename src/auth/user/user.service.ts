@@ -213,4 +213,21 @@ export class UserService {
     })
     return new PageResponse(users, page, size)
   }
+
+  public async getUserProgress(user: User) {
+    const entity = await this.repository.findOneByOrFail({ id: user.id })
+    const points = entity.userPoint
+    if (points <= 100) {
+      return Math.round((20 / 15) * points)
+    } else {
+      const res = Math.round((points - 100) * 0.05 + 100)
+      return res > 120 ? 120 : res
+    }
+  }
+
+  public async increaseProgressAfterPostCreation(user: User) {
+    const entity = await this.repository.findOneByOrFail({ id: user.id })
+    entity.userPoint = entity.userPoint + 1
+    await this.repository.save(entity)
+  }
 }

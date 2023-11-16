@@ -212,4 +212,16 @@ export class UserController {
   ) {
     return await this.userService.searchUsersByUsername(username, page, size)
   }
+
+  @Get('self/getSelfProgress')
+  @ApiUnauthorizedResponse({
+    description: 'Authentication required. In order for user to see the post. It has to registered with a email.'
+  })
+  @ApiOkResponse({
+    type: 'number',
+    description: 'This end-point will return the progress points of user ranging from 0 to 120'
+  })
+  public async getUserProgress(@CurrentUser() user: User) {
+    return await this.userService.getUserProgress(user)
+  }
 }

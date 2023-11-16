@@ -17,8 +17,13 @@ export class PostLikeService {
         user: { id: user.id }
       }
     })
-    if (isPreviouslyLiked !== null && isPreviouslyLiked !== undefined && postLikeDto.isSuper) {
-      return await this.updateLikeToSuperLike(isPreviouslyLiked)
+    if (isPreviouslyLiked !== null && isPreviouslyLiked !== undefined) {
+      if (postLikeDto.isSuper && !isPreviouslyLiked.isSuper) {
+        return await this.updateLikeToSuperLike(isPreviouslyLiked)
+      } else if (!isPreviouslyLiked.isSuper) {
+        await this.removeLikeFromUser(isPreviouslyLiked)
+        return null
+      }
     } else {
       const postLike = this.repo.create()
       postLike.post = post
@@ -37,6 +42,10 @@ export class PostLikeService {
     })
 
     return new PageResponse(response, page, size)
+  }
+
+  public async removeLikeFromUser(postLike: PostLike) {
+    await this.repo.delete(postLike.id)
   }
 
   public async updateLikeToSuperLike(postLike: PostLike) {

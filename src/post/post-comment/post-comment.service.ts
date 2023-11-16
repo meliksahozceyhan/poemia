@@ -7,6 +7,7 @@ import { User } from 'src/auth/user/entity/user.entity'
 import { PageResponse } from 'src/sdk/PageResponse'
 import { Post } from '../entity/post.entity'
 import { PostCommentLikeService } from './post-comment-like/post-comment-like.service'
+import { BasePoemiaError } from 'src/sdk/Error/BasePoemiaError'
 
 @Injectable()
 export class PostCommentService {
@@ -58,6 +59,14 @@ export class PostCommentService {
   }
 
   public async likeComment(commentId: string, user: User) {
-    return this.postCommentLikeService.likeComment(commentId, user)
+    return await this.postCommentLikeService.likeComment(commentId, user)
+  }
+
+  public async deleteComment(commentId: string, user: User) {
+    const comment = await this.repo.findOneByOrFail({ id: commentId })
+    if (comment.user.id !== user.id) {
+      throw new BasePoemiaError('Cannot Delete others comment')
+    }
+    return await this.repo.remove(comment)
   }
 }

@@ -7,7 +7,7 @@ import { Entity, JoinColumn, ManyToOne, Unique } from 'typeorm'
 @Entity()
 @Unique(['post', 'user'])
 export class PostRepost extends BaseEntity {
-  @ManyToOne(() => Post, { onDelete: 'CASCADE', eager: false })
+  @ManyToOne(() => Post, { onDelete: 'CASCADE', eager: true })
   @JoinColumn({ name: 'post_id' })
   @ApiProperty({ type: Post, nullable: false, required: true })
   post: Post
