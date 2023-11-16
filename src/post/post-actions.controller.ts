@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, ParseUUIDPipe, Post, Query } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, ParseUUIDPipe, Post, Query } from '@nestjs/common'
 import { PostLikeService } from './post-like/post-like.service'
 import { PostCommentService } from './post-comment/post-comment.service'
 import { InjectQueue } from '@nestjs/bull'
@@ -10,6 +10,7 @@ import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiInternalServerErrorResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiTags,
   ApiUnauthorizedResponse
@@ -153,5 +154,20 @@ export class PostActionController {
   @ApiBearerAuth()
   public async likeComment(@Param('commentId', ParseUUIDPipe) commentId: string, @CurrentUser() user: User) {
     return await this.postCommentService.likeComment(commentId, user)
+  }
+
+  @Delete(':commentId')
+  @ApiNoContentResponse({
+    description: 'This is the successful case response.'
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Authentication required. In order for user to see the post. It has to registered with a email.'
+  })
+  @ApiInternalServerErrorResponse({
+    type: BasePoemiaErrorResponse,
+    description: 'When user trying to delete a comment that is not registered by itself. throws this error "Cannot Delete others comment"'
+  })
+  public async deleteComment(@Param('commentId', ParseUUIDPipe) commentId: string, @CurrentUser() user: User) {
+    return await this.postCommentService.deleteComment(commentId, user)
   }
 }

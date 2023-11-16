@@ -9,6 +9,7 @@ import { endOfDay, startOfDay } from 'date-fns'
 import { PostHighlightService } from './post-highlight/post-highlight.service'
 import { UserService } from 'src/auth/user/user.service'
 import { BasePoemiaError } from 'src/sdk/Error/BasePoemiaError'
+import { LanguageNames } from 'src/util/languages'
 
 @Injectable()
 export class PostService {
@@ -24,7 +25,7 @@ export class PostService {
   }
 
   public async createPost(createPostDto: CreatePostDto, user: User): Promise<Post> {
-    if (!user.isPremium && (await this.countByUser(user)) > 10) {
+    if (!user.isPremium && (await this.countPostSharedByUserDaily(user)) > 10) {
       throw new BasePoemiaError('post.limitExceeded')
     }
     const entity = this.repo.create()
@@ -65,7 +66,7 @@ export class PostService {
     })
   }
 
-  public async getFeedWithUser(page: number, size: number, userId: string) {
+  public async getFeedWithUser(page: number, size: number, userId: string, language: LanguageNames) {
     const queryBuilder = this.entityManager.createQueryBuilder(Post, 'post')
     const result = await queryBuilder
       .leftJoinAndMapOne('post.user', 'post.user', 'user', 'post.user.id = user.id')
@@ -84,6 +85,7 @@ export class PostService {
       .leftJoinAndMapOne('post.lastLike', 'post.likes', 'lastLike', 'lastLike.post.id = post.id')
       .leftJoinAndMapOne('lastLike.user', 'lastLike.user', 'user3', 'lastLike.user.id = user3.id')
       .leftJoinAndMapMany('post.taggedUsers', 'post.taggedUsers', 'taggedUsers')
+      .where('post.language = :language', { language: language })
       .skip(page * size)
       .take(size)
       //.orderBy('post.postHighlight')

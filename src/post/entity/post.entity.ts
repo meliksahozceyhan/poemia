@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger'
 import { IsArray, IsBoolean, IsEnum, IsNotEmpty, IsObject, IsString, Length } from 'class-validator'
 import { User } from 'src/auth/user/entity/user.entity'
 import { BaseEntity } from 'src/sdk/entity/base.entity'
@@ -94,18 +94,23 @@ export class Post extends BaseEntity {
   taggedUsers: User[]
 
   @OneToMany(() => PostView, 'post')
+  @ApiHideProperty()
   views: PostView[]
 
   @OneToMany(() => PostLike, 'post')
+  @ApiHideProperty()
   likes: PostLike[]
 
   @OneToMany(() => PostComment, 'post')
+  @ApiHideProperty()
   comments: PostComment[]
 
   @OneToMany(() => PostHighlight, 'post')
+  @ApiHideProperty()
   highlights: PostHighlight[]
 
   @OneToMany(() => PostRepost, 'post')
+  @ApiHideProperty()
   reposts: PostRepost[]
 
   likeCount: number

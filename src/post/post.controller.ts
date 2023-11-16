@@ -6,6 +6,8 @@ import { User } from 'src/auth/user/entity/user.entity'
 import { Post as PostEnt } from './entity/post.entity'
 import { ApiBearerAuth, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
 import { ApiOkResponsePaginated } from 'src/sdk/swagger-helper/api-ok-response-paginated'
+import { PostRepostService } from './post-repost/post-repost.service'
+import { LanguageNames } from 'src/util/languages'
 
 @Controller('post')
 @ApiTags('post')
@@ -13,7 +15,7 @@ import { ApiOkResponsePaginated } from 'src/sdk/swagger-helper/api-ok-response-p
   description: 'Given Entity Not Found'
 })
 export class PostController {
-  constructor(private readonly postService: PostService) {}
+  constructor(private readonly postService: PostService, private readonly postRepostService: PostRepostService) {}
 
   @Post()
   @ApiBearerAuth()
@@ -59,7 +61,6 @@ export class PostController {
     return this.postService.countPostSharedByUserDaily(user)
   }
 
-  //@SkipAuth()
   @Get('/feed')
   @ApiBearerAuth()
   @ApiUnauthorizedResponse({
@@ -69,8 +70,13 @@ export class PostController {
     description: 'Use This end-point in order to get a singular post',
     type: PostEnt
   })
-  public async getFeed(@Query('page', ParseIntPipe) page: number, @Query('size', ParseIntPipe) size: number, @CurrentUser() user: User) {
-    return await this.postService.getFeedWithUser(page, size, user.id)
+  public async getFeed(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('size', ParseIntPipe) size: number,
+    @Query('language') language: LanguageNames,
+    @CurrentUser() user: User
+  ) {
+    return await this.postService.getFeedWithUser(page, size, user.id, user.language)
   }
 
   @Get('/user/:id')
@@ -89,5 +95,15 @@ export class PostController {
     @CurrentUser() user: User
   ) {
     return await this.postService.getPostsOfUser(page, size, id, user.id)
+  }
+
+  @Get('user/repoems/:id')
+  public async getRePoemsOfUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('size', ParseIntPipe) size: number,
+    @CurrentUser() user: User
+  ) {
+    return await this.postRepostService.getRepostsOfUserWithAnotherUser(id, page, size, user)
   }
 }

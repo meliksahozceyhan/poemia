@@ -18,6 +18,7 @@ import { PostHighlight } from './post-highlight/entity/post-highlight.entity'
 import { UserModule } from 'src/auth/user/user.module'
 import { PostCommentLike } from './post-comment/post-comment-like/entity/post-comment-like.entity'
 import { PostCommentLikeService } from './post-comment/post-comment-like/post-comment-like.service'
+import { PostSubscriber } from './post.subscriber'
 
 @Module({
   imports: [
@@ -26,7 +27,16 @@ import { PostCommentLikeService } from './post-comment/post-comment-like/post-co
     UserModule
   ],
   controllers: [PostController, PostActionController],
-  providers: [PostService, PostCommentService, PostLikeService, PostViewService, PostRepostService, PostHighlightService, PostCommentLikeService],
+  providers: [
+    PostService,
+    PostCommentService,
+    PostLikeService,
+    PostViewService,
+    PostRepostService,
+    PostHighlightService,
+    PostCommentLikeService,
+    PostSubscriber
+  ],
   exports: [PostViewService]
 })
 export class PostModule {}
