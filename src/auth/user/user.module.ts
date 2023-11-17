@@ -11,11 +11,13 @@ import { UserActionService } from './user-actions.service'
 import { UserBlocked } from './entity/user-blocked.entity'
 import { BullModule } from '@nestjs/bull'
 import { UserBadge } from './entity/user-badge.entity'
+import { StoryModule } from 'src/story/story.module'
 
 @Module({
   imports: [
     BullModule.registerQueue({ name: 'view' }),
-    TypeOrmModule.forFeature([User, UserAbout, UserView, UserFollow, UserNameChange, UserBlocked, UserBadge])
+    TypeOrmModule.forFeature([User, UserAbout, UserView, UserFollow, UserNameChange, UserBlocked, UserBadge]),
+    StoryModule
   ],
   controllers: [UserController],
   providers: [UserService, UserActionService],

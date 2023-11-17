@@ -7,6 +7,7 @@ import { LanguageNames } from 'src/util/languages'
 import { UserAbout } from './user-about.entity'
 import { FeatherType } from 'src/util/enums'
 import { UserFollow } from './user-follow.entity'
+import { Story } from 'src/story/entity/story.entity'
 
 @Entity()
 export class User extends BaseEntity {
@@ -140,6 +141,12 @@ export class User extends BaseEntity {
   @ApiHideProperty()
   @OneToMany(() => UserFollow, 'follower')
   following: UserFollow[]
+
+  @ApiHideProperty()
+  @OneToMany(() => Story, 'user')
+  stories: Story[]
+
+  activeStory: Story
 
   isFollowed: UserFollow
 
