@@ -6,7 +6,6 @@ import { CreateStoryDto } from './dto/create-story.dto'
 import { User } from 'src/auth/user/entity/user.entity'
 import { BasePoemiaError } from 'src/sdk/Error/BasePoemiaError'
 import { PageResponse } from 'src/sdk/PageResponse'
-import { StoryView } from './story-view/entity/story-view.entity'
 
 @Injectable()
 export class StoryService {
