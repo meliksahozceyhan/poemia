@@ -11,6 +11,6 @@ import { BullModule } from '@nestjs/bull'
   imports: [TypeOrmModule.forFeature([Story, StoryView]), BullModule.registerQueue({ name: 'view' })],
   controllers: [StoryController],
   providers: [StoryService, StoryViewService],
-  exports: [StoryViewService]
+  exports: [StoryViewService, StoryService]
 })
 export class StoryModule {}

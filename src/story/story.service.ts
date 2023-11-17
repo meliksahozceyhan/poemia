@@ -38,6 +38,17 @@ export class StoryService {
     })
   }
 
+  public async getActiveStoryOfUser(user: User) {
+    return await this.repo.findOne({
+      where: {
+        user: {
+          id: user.id
+        },
+        expiresAt: MoreThan(new Date())
+      }
+    })
+  }
+
   public async getStoryList(page: number, size: number, user: User): Promise<PageResponse<Story>> {
     const stories = await this.repo.findAndCount({
       where: {

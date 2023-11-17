@@ -16,6 +16,7 @@ import { UserFollow } from './user/entity/user-follow.entity'
 import { BullModule } from '@nestjs/bull'
 import { UserBadge } from './user/entity/user-badge.entity'
 import { JwtStrategy } from './strategy/jwt.strategy'
+import { StoryModule } from 'src/story/story.module'
 
 @Module({
   controllers: [AuthController],
@@ -32,7 +33,8 @@ import { JwtStrategy } from './strategy/jwt.strategy'
         secret: configService.get('secrets.JWT'),
         signOptions: { expiresIn: '1y' }
       })
-    })
+    }),
+    StoryModule
   ]
 })
 export class AuthModule {}

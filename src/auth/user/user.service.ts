@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { Inject, Injectable, UnauthorizedException, forwardRef } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { User } from './entity/user.entity'
 import { ILike, Repository } from 'typeorm'
@@ -17,6 +17,7 @@ import { Queue } from 'bull'
 import { InjectQueue } from '@nestjs/bull'
 import { UserBadge } from './entity/user-badge.entity'
 import { PageResponse } from 'src/sdk/PageResponse'
+import { StoryService } from 'src/story/story.service'
 
 @Injectable()
 export class UserService {
@@ -27,6 +28,7 @@ export class UserService {
     @InjectRepository(UserNameChange) private readonly nameChangeRepo: Repository<UserNameChange>,
     @InjectRepository(UserFollow) private readonly userFollowRepo: Repository<UserFollow>,
     @InjectRepository(UserBadge) private readonly userbadgeRepo: Repository<UserBadge>,
+    @Inject(forwardRef(() => StoryService)) private storyService: StoryService,
     @InjectQueue('view') private readonly viewQueue: Queue
   ) {}
 
@@ -45,6 +47,7 @@ export class UserService {
     foundUser['followerCount'] = await this.userFollowRepo.count({ select: { id: true }, where: { user: { id: foundUser.id } } })
     foundUser['followingCount'] = await this.userFollowRepo.count({ select: { id: true }, where: { follower: { id: foundUser.id } } })
     foundUser['badgeCount'] = await this.userbadgeRepo.count({ select: { id: true }, where: { user: { id: foundUser.id } } })
+    foundUser.activeStory = await this.storyService.getActiveStoryOfUser(foundUser)
     return foundUser
   }
 
@@ -103,6 +106,7 @@ export class UserService {
     foundUser['followerCount'] = await this.userFollowRepo.count({ select: { id: true }, where: { user: { id: foundUser.id } } })
     foundUser['followingCount'] = await this.userFollowRepo.count({ select: { id: true }, where: { follower: { id: foundUser.id } } })
     foundUser['badgeCount'] = await this.userbadgeRepo.count({ select: { id: true }, where: { user: { id: foundUser.id } } })
+    foundUser.activeStory = await this.storyService.getActiveStoryOfUser(foundUser)
     return foundUser
   }
 
