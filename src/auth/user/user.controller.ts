@@ -187,7 +187,7 @@ export class UserController {
     return await this.userService.getFollowingsOfUser(id, page, size)
   }
 
-  @Get('/selfProfileViewers')
+  @Get('/self/profileViewers')
   @ApiUnauthorizedResponse({
     description: 'Authentication required. In order for user to see the post. It has to registered with a email.'
   })
