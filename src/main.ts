@@ -9,6 +9,11 @@ import { BasePoemiaErrorFilter } from './filters/base-poemia-error.filter'
 
 async function bootstrap() {
   console.log(process.env.DENEME_LOG)
+  console.log(process.env.MAIL_HOST)
+  console.log(process.env.MAIL_USER)
+  console.log(process.env.MAIL_PASSWORD)
+  console.log(process.env.MAIL_FROM)
+
   const httpsOptions = {
     key: readFileSync(__dirname + '/secrets/poemia.key'),
     cert: readFileSync(__dirname + '/secrets/poemia.crt')

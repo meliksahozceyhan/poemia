@@ -79,8 +79,17 @@ export class AuthService {
         return await this.createToken(user)
       }
       throw new UnauthorizedException('auth.wrongPassword')
+    } else {
+      const user = await this.userService.findByEmail(loginDto.email)
+      if (!user.isActive) {
+        const resendOtpResponse = await this.resendOtp(user.phoneNumber)
+        throw new UserNotActivatedError('Account not activated!', { resendOtpResponse, phoneNumber: user.phoneNumber, email: user.email })
+      }
+      if (await bcrypt.compare(loginDto.password, user.password as string)) {
+        return await this.createToken(user)
+      }
+      throw new UnauthorizedException('auth.wrongPassword')
     }
-    throw new BasePoemiaError('Email Is wrong')
   }
 
   public async silentRenew(token: string, refreshToken: string, user: User): Promise<JwtTokenResponse> {

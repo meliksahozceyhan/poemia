@@ -17,7 +17,8 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
           auth: {
             user: configService.get('mail.user'),
             pass: configService.get('mail.password')
-          }
+          },
+          port: 465
         },
         defaults: {
           from: `"No Reply" <${configService.get('mail.from')}>`
