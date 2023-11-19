@@ -107,6 +107,7 @@ export class UserService {
     foundUser['followingCount'] = await this.userFollowRepo.count({ select: { id: true }, where: { follower: { id: foundUser.id } } })
     foundUser['badgeCount'] = await this.userbadgeRepo.count({ select: { id: true }, where: { user: { id: foundUser.id } } })
     foundUser.activeStory = await this.storyService.getActiveStoryOfUser(foundUser)
+    foundUser.isFollowed = await this.userFollowRepo.findOne({ where: { follower: { id: user.id }, user: { id: foundUser.id } } })
     return foundUser
   }
 
