@@ -21,6 +21,6 @@ import { StoryModule } from 'src/story/story.module'
   ],
   controllers: [UserController],
   providers: [UserService, UserActionService],
-  exports: [UserService]
+  exports: [UserService, UserActionService]
 })
 export class UserModule {}

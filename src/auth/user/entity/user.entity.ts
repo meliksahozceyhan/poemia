@@ -8,6 +8,7 @@ import { UserAbout } from './user-about.entity'
 import { FeatherType } from 'src/util/enums'
 import { UserFollow } from './user-follow.entity'
 import { Story } from 'src/story/entity/story.entity'
+import { UserBlocked } from './user-blocked.entity'
 
 @Entity()
 export class User extends BaseEntity {
@@ -146,9 +147,15 @@ export class User extends BaseEntity {
   @OneToMany(() => Story, 'user')
   stories: Story[]
 
+  @ApiHideProperty()
+  @OneToMany(() => UserBlocked, 'blockedBy')
+  blockeds: UserBlocked[]
+
   activeStory: Story
 
   isFollowed: UserFollow
+
+  isBlocked: UserBlocked
 
   toJSON() {
     return instanceToPlain(this)

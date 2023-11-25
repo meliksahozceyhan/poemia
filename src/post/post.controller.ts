@@ -57,6 +57,13 @@ export class PostController {
   }
 
   @Get('/countOfPosts')
+  @ApiUnauthorizedResponse({
+    description: 'Authentication required. In order for user to see the post. It has to registered with a email.'
+  })
+  @ApiOkResponse({
+    description: 'Use This end-point for Retrieving the daily PostCountOf the user',
+    type: 'number'
+  })
   public async countOfPosts(@CurrentUser() user: User): Promise<number> {
     return this.postService.countPostSharedByUserDaily(user)
   }

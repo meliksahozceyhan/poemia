@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable, forwardRef } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { UserBlocked } from './entity/user-blocked.entity'
 import { Repository } from 'typeorm'
@@ -12,7 +12,7 @@ export class UserActionService {
   constructor(
     @InjectRepository(UserBlocked) private readonly userBlockedRepo: Repository<UserBlocked>,
     @InjectRepository(UserFollow) private readonly userFollowRepo: Repository<UserFollow>,
-    private readonly userService: UserService
+    @Inject(forwardRef(() => UserService)) private userService: UserService
   ) {}
 
   public async followUser(id: string, follower: User) {
@@ -37,14 +37,45 @@ export class UserActionService {
   }
 
   public async blockUser(id: string, user: User) {
-    const blockEntity = this.userBlockedRepo.create()
-    blockEntity.blockedBy = user
-    blockEntity.blocks.id = id
+    const blockEntity = { blockedBy: { id: user.id }, blocks: { id: id } }
 
     return await this.userBlockedRepo.save(blockEntity)
   }
 
   public async unfollowUser(userfollowEntity: UserFollow) {
     await this.userFollowRepo.remove(userfollowEntity)
+  }
+
+  public async getFollowersOfUser(id: string) {
+    const res = await this.userBlockedRepo.query(
+      `
+			SELECT user_id FROM public.user_follow WHERE follower_id = $1
+		`,
+      [id]
+    )
+    return res.map((val) => val.user_id)
+  }
+
+  public async getBlockedOrBlockedByOdUsers(id: string) {
+    const res = await this.userBlockedRepo.query(
+      `
+			SELECT blocked_by from public.user_blocked WHERE blocks_id = $1 
+		`,
+      [id]
+    )
+
+    const res2 = await this.userBlockedRepo.query(
+      `
+			SELECT blocks_id from public.user_blocked WHERE blocked_by = $1
+		`,
+      [id]
+    )
+    return res.map((val) => val.blocked_by).concat(res2.map((val) => val.blocks_id))
+  }
+
+  public async getExclusiveUserIdsForFeed(id: string) {
+    const follow = await this.getFollowersOfUser(id)
+    const blocked = await this.getBlockedOrBlockedByOdUsers(id)
+    return [...new Set(follow.concat(blocked))]
   }
 }
