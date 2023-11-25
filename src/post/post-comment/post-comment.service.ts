@@ -45,6 +45,7 @@ export class PostCommentService {
       .leftJoinAndMapOne('postComment.user', 'postComment.user', 'user', 'postComment.user.id = user.id')
       .leftJoinAndMapOne('postComment.mention', 'postComment.mention', 'mention', 'postComment.mention.id = mention.id')
       .leftJoinAndMapOne('user.activeStory', 'user.stories', 'userStories', 'userStories.user.id = user.id AND userStories.expiresAt > now()')
+      .leftJoinAndMapOne('user.isBlocked', 'user.blockeds', 'userBlocked', 'userBlocked.blockedBy.id = :requestedBy', { requestedBy })
       .loadRelationCountAndMap('post.likeCount', 'postComment.likes')
       .skip(page * size)
       .take(size)

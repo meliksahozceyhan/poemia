@@ -71,6 +71,9 @@ export class AuthService {
   public async login(loginDto: LoginDto): Promise<JwtTokenResponse> {
     if (loginDto.username !== undefined && loginDto.username !== null) {
       const user = await this.userService.findUserByUserName(loginDto.username)
+      if (!(await bcrypt.compare(loginDto.password, user.password as string))) {
+        throw new UnauthorizedException('auth.wrongPassword')
+      }
       if (!user.isActive) {
         const resendOtpResponse = await this.resendOtp(user.phoneNumber)
         throw new UserNotActivatedError('Account not activated!', { resendOtpResponse, phoneNumber: user.phoneNumber, email: user.email })
@@ -81,6 +84,9 @@ export class AuthService {
       throw new UnauthorizedException('auth.wrongPassword')
     } else {
       const user = await this.userService.findByEmail(loginDto.email)
+      if (!(await bcrypt.compare(loginDto.password, user.password as string))) {
+        throw new UnauthorizedException('auth.wrongPassword')
+      }
       if (!user.isActive) {
         const resendOtpResponse = await this.resendOtp(user.phoneNumber)
         throw new UserNotActivatedError('Account not activated!', { resendOtpResponse, phoneNumber: user.phoneNumber, email: user.email })

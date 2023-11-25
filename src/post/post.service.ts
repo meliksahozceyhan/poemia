@@ -7,9 +7,9 @@ import { User } from 'src/auth/user/entity/user.entity'
 import { PageResponse } from 'src/sdk/PageResponse'
 import { endOfDay, startOfDay } from 'date-fns'
 import { PostHighlightService } from './post-highlight/post-highlight.service'
-import { UserService } from 'src/auth/user/user.service'
 import { BasePoemiaError } from 'src/sdk/Error/BasePoemiaError'
 import { LanguageNames } from 'src/util/languages'
+import { UserActionService } from 'src/auth/user/user-actions.service'
 
 @Injectable()
 export class PostService {
@@ -17,7 +17,7 @@ export class PostService {
     @InjectRepository(Post) private readonly repo: Repository<Post>,
     @Inject(forwardRef(() => PostHighlightService)) private postHighLightService: PostHighlightService,
     @InjectEntityManager() private readonly entityManager: EntityManager,
-    private readonly userService: UserService
+    private readonly userActionsService: UserActionService
   ) {}
 
   public async findById(id: string): Promise<Post> {
@@ -67,6 +67,8 @@ export class PostService {
   }
 
   public async getFeedWithUser(page: number, size: number, userId: string, language: LanguageNames) {
+    /*  const exludeUserIds = await this.userActionsService.getExclusiveUserIdsForFeed(userId)
+    console.log(exludeUserIds) */
     const queryBuilder = this.entityManager.createQueryBuilder(Post, 'post')
     const result = await queryBuilder
       .leftJoinAndMapOne('post.user', 'post.user', 'user', 'post.user.id = user.id')
@@ -79,6 +81,7 @@ export class PostService {
       .leftJoinAndMapOne('post.isLiked', 'post.likes', 'postLiked', 'postLiked.user.id = :userId', { userId })
       .leftJoinAndMapOne('post.isRepoemed', 'post.reposts', 'postResposted', 'postResposted.user.id = :userId', { userId })
       .leftJoinAndMapOne('user.isFollowed', 'user.followers', 'userFollows', 'userFollows.follower.id = :userId', { userId })
+      .leftJoinAndMapOne('user.isBlocked', 'user.blockeds', 'userBlocked', 'userBlocked.blockedBy.id = :userId', { userId })
       .leftJoinAndMapOne('post.lastComment', 'post.comments', 'lastComment', 'lastComment.post.id = post.id')
       .leftJoinAndMapOne('lastComment.user', 'lastComment.user', 'user2', 'lastComment.user.id = user2.id')
       .leftJoinAndMapOne('lastComment.mention', 'lastComment.mention', 'mention', 'lastComment.mention.id = mention.id')
@@ -86,15 +89,14 @@ export class PostService {
       .leftJoinAndMapOne('lastLike.user', 'lastLike.user', 'user3', 'lastLike.user.id = user3.id')
       .leftJoinAndMapOne('user.activeStory', 'user.stories', 'userStories', 'userStories.user.id = user.id AND userStories.expiresAt > now()')
       .leftJoinAndMapMany('post.taggedUsers', 'post.taggedUsers', 'taggedUsers')
-      .where('post.language = :language', { language: language })
+      //.where('post.language = :language', { language: language })
+      //.where('post.user.id NOT IN (:...exludeUserIds)', { exludeUserIds })
       .skip(page * size)
       .take(size)
-      //.orderBy('post.postHighlight')
-      .addOrderBy('post.createdAt')
+      .orderBy('postHighlight.expiresAt')
+      .addOrderBy('post.createdAt', 'DESC')
       .getManyAndCount()
 
-    /*  const sql = await queryBuilder.getSql()
-    console.log(sql) */
     return new PageResponse(result, page, size)
   }
 
@@ -108,9 +110,10 @@ export class PostService {
       .loadRelationCountAndMap('post.commentCount', 'post.comments', 'postComment')
       .loadRelationCountAndMap('post.repostCount', 'post.reposts', 'postRepost')
       .leftJoinAndMapOne('post.isHighlighted', 'post.highlights', 'postHighlight', 'postHighlight.expiresAt > now()')
-      .leftJoinAndMapOne('post.isLiked', 'post.likes', 'postLiked', 'postLiked.user.id = :userId', { userId: requestedBy })
-      .leftJoinAndMapOne('post.isRepoemed', 'post.reposts', 'postResposted', 'postResposted.user.id = :userId', { userId: requestedBy })
-      .leftJoinAndMapOne('user.isFollowed', 'user.followers', 'userFollows', 'userFollows.follower.id = :userId', { userId: requestedBy })
+      .leftJoinAndMapOne('post.isLiked', 'post.likes', 'postLiked', 'postLiked.user.id = :requestedBy', { requestedBy: requestedBy })
+      .leftJoinAndMapOne('post.isRepoemed', 'post.reposts', 'postResposted', 'postResposted.user.id = :requestedBy', { requestedBy: requestedBy })
+      .leftJoinAndMapOne('user.isFollowed', 'user.followers', 'userFollows', 'userFollows.follower.id = :requestedBy', { requestedBy: requestedBy })
+      .leftJoinAndMapOne('user.isBlocked', 'user.blockeds', 'userBlocked', 'userBlocked.blockedBy.id = :requestedBy', { requestedBy: requestedBy })
       .leftJoinAndMapOne('post.lastComment', 'post.comments', 'lastComment', 'lastComment.post.id = post.id')
       .leftJoinAndMapOne('lastComment.user', 'lastComment.user', 'user2', 'lastComment.user.id = user2.id')
       .leftJoinAndMapOne('lastComment.mention', 'lastComment.mention', 'mention', 'lastComment.mention.id = mention.id')
@@ -119,8 +122,8 @@ export class PostService {
       .where('post.user.id = :userId', { userId })
       .skip(page * size)
       .take(size)
-      //.orderBy('post.postHighlight')
-      .addOrderBy('post.createdAt')
+      .orderBy('postHighlight.expiresAt')
+      .addOrderBy('post.createdAt', 'DESC')
       .getManyAndCount()
 
     /*  const sql = await queryBuilder.getSql()
