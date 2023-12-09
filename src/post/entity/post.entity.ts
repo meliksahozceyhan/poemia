@@ -68,6 +68,11 @@ export class Post extends BaseEntity {
   @IsString()
   readerVideoPath: string
 
+  @Column({ nullable: true })
+  @ApiProperty({ nullable: true })
+  @IsString()
+  videoPath: string
+
   @Column({ default: false })
   @ApiProperty({ default: true })
   @IsBoolean()

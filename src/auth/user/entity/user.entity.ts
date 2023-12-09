@@ -149,13 +149,18 @@ export class User extends BaseEntity {
 
   @ApiHideProperty()
   @OneToMany(() => UserBlocked, 'blockedBy')
-  blockeds: UserBlocked[]
+  blocks: UserBlocked[]
+
+  @ApiHideProperty()
+  @OneToMany(() => UserBlocked, 'blocks')
+  blockedBy: UserBlocked[]
 
   activeStory: Story
 
   isFollowed: UserFollow
 
   isBlocked: UserBlocked
+  isBlocks: UserBlocked
 
   toJSON() {
     return instanceToPlain(this)

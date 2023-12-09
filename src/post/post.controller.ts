@@ -86,6 +86,24 @@ export class PostController {
     return await this.postService.getFeedWithUser(page, size, user.id, user.language)
   }
 
+  @Get('/readers')
+  @ApiBearerAuth()
+  @ApiUnauthorizedResponse({
+    description: 'Authentication required. In order for user to see the post. It has to registered with a email.'
+  })
+  @ApiOkResponse({
+    description: 'Use This end-point in order to get a singular post',
+    type: PostEnt
+  })
+  public async getReadersVideos(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('size', ParseIntPipe) size: number,
+    @Query('language') language: LanguageNames,
+    @CurrentUser() user: User
+  ) {
+    return await this.postService.getReadersVideos(page, size, user.id)
+  }
+
   @Get('/user/:id')
   @ApiBearerAuth()
   @ApiUnauthorizedResponse({

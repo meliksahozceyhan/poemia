@@ -65,15 +65,15 @@ export class StoryService {
     const result = await queryBuilder
       .leftJoinAndMapOne('story.user', 'story.user', 'user', 'story.user.id = user.id')
       .leftJoinAndMapOne('story.isViewed', 'story.views', 'storyView', 'storyView.user.id = :userId', { userId: user.id })
+      .leftJoinAndMapOne('user.isBlocks', 'user.blocks', 'userBlocks', 'userBlocks.blocks.id = :user', { user: user.id })
+      .leftJoinAndMapOne('user.isBlocked', 'user.blockedBy', 'userBlocked', 'userBlocked.blockedBy.id = :user2', { user2: user.id })
       .where('story.user.id != :userId AND story.expiresAt > :expiresAt', { userId: user.id, expiresAt: new Date() })
       .andWhere('story.language = :language', { language: user.language })
+      .andWhere('userBlocked.id IS NULL AND userBlocks.id IS NULL')
       .skip(page * size)
       .take(size)
       .getManyAndCount()
-    /* const result = await queryBuilder
-      .skip(page * size)
-      .take(size)
-      .getManyAndCount() */
+
     return new PageResponse(result, page, size)
   }
 }
