@@ -66,7 +66,8 @@ export class PostService {
     })
   }
 
-  public async getFeedWithUser(page: number, size: number, userId: string, language: LanguageNames) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async getFeedWithUser(page: number, size: number, userId: string, _language: LanguageNames) {
     /*  const exludeUserIds = await this.userActionsService.getExclusiveUserIdsForFeed(userId)
     console.log(exludeUserIds) */
     const queryBuilder = this.entityManager.createQueryBuilder(Post, 'post')
@@ -81,7 +82,8 @@ export class PostService {
       .leftJoinAndMapOne('post.isLiked', 'post.likes', 'postLiked', 'postLiked.user.id = :userId', { userId })
       .leftJoinAndMapOne('post.isRepoemed', 'post.reposts', 'postResposted', 'postResposted.user.id = :userId', { userId })
       .leftJoinAndMapOne('user.isFollowed', 'user.followers', 'userFollows', 'userFollows.follower.id = :userId', { userId })
-      .leftJoinAndMapOne('user.isBlocked', 'user.blockeds', 'userBlocked', 'userBlocked.blockedBy.id = :userId', { userId })
+      .leftJoinAndMapOne('user.isBlocks', 'user.blocks', 'userBlocks', 'userBlocks.blocks.id = :userId', { userId })
+      .leftJoinAndMapOne('user.isBlocked', 'user.blockedBy', 'userBlocked', 'userBlocked.blockedBy.id = :userId', { userId })
       .leftJoinAndMapOne('post.lastComment', 'post.comments', 'lastComment', 'lastComment.post.id = post.id')
       .leftJoinAndMapOne('lastComment.user', 'lastComment.user', 'user2', 'lastComment.user.id = user2.id')
       .leftJoinAndMapOne('lastComment.mention', 'lastComment.mention', 'mention', 'lastComment.mention.id = mention.id')
@@ -90,7 +92,43 @@ export class PostService {
       .leftJoinAndMapOne('user.activeStory', 'user.stories', 'userStories', 'userStories.user.id = user.id AND userStories.expiresAt > now()')
       .leftJoinAndMapMany('post.taggedUsers', 'post.taggedUsers', 'taggedUsers')
       //.where('post.language = :language', { language: language })
-      //.where('post.user.id NOT IN (:...exludeUserIds)', { exludeUserIds })
+      .where('userBlocked.id IS NULL AND userBlocks.id IS NULL')
+      .andWhere('post.readerVideoPath IS NULL')
+      .skip(page * size)
+      .take(size)
+      .orderBy('postHighlight.expiresAt')
+      .addOrderBy('post.createdAt', 'DESC')
+      .getManyAndCount()
+
+    return new PageResponse(result, page, size)
+  }
+
+  public async getReadersVideos(page: number, size: number, userId: string) {
+    const queryBuilder = this.entityManager.createQueryBuilder(Post, 'post')
+    const result = await queryBuilder
+      .leftJoinAndMapOne('post.user', 'post.user', 'user', 'post.user.id = user.id')
+      .loadRelationCountAndMap('post.viewCount', 'post.views', 'postView')
+      .loadRelationCountAndMap('post.likeCount', 'post.likes', 'postLike', (qb) => qb.andWhere({ isSuper: false }))
+      .loadRelationCountAndMap('post.superLikeCount', 'post.likes', 'postLike', (qb) => qb.andWhere({ isSuper: true }))
+      .loadRelationCountAndMap('post.commentCount', 'post.comments', 'postComment')
+      .loadRelationCountAndMap('post.repostCount', 'post.reposts', 'postRepost')
+      .leftJoinAndMapOne('post.isHighlighted', 'post.highlights', 'postHighlight', 'postHighlight.expiresAt > now()')
+      .leftJoinAndMapOne('post.isLiked', 'post.likes', 'postLiked', 'postLiked.user.id = :userId', { userId })
+      .leftJoinAndMapOne('post.isRepoemed', 'post.reposts', 'postResposted', 'postResposted.user.id = :userId', { userId })
+      .leftJoinAndMapOne('user.isFollowed', 'user.followers', 'userFollows', 'userFollows.follower.id = :userId', { userId })
+      .leftJoinAndMapOne('user.isBlocks', 'user.blocks', 'userBlocks', 'userBlocks.blocks.id = :userId', { userId })
+      .leftJoinAndMapOne('user.isBlocked', 'user.blockedBy', 'userBlocked', 'userBlocked.blockedBy.id = :userId', { userId })
+      .leftJoinAndMapOne('post.lastComment', 'post.comments', 'lastComment', 'lastComment.post.id = post.id')
+      .leftJoinAndMapOne('lastComment.user', 'lastComment.user', 'user2', 'lastComment.user.id = user2.id')
+      .leftJoinAndMapOne('lastComment.mention', 'lastComment.mention', 'mention', 'lastComment.mention.id = mention.id')
+      .leftJoinAndMapOne('post.lastLike', 'post.likes', 'lastLike', 'lastLike.post.id = post.id')
+      .leftJoinAndMapOne('lastLike.user', 'lastLike.user', 'user3', 'lastLike.user.id = user3.id')
+      .leftJoinAndMapOne('user.activeStory', 'user.stories', 'userStories', 'userStories.user.id = user.id AND userStories.expiresAt > now()')
+      .leftJoinAndMapMany('post.taggedUsers', 'post.taggedUsers', 'taggedUsers')
+      //.where('post.language = :language', { language: language })
+      .where('userBlocked.id IS NULL AND userBlocks.id IS NULL')
+      //.andWhere('userFollows.id IS NULL')
+      .andWhere('post.readerVideoPath IS NOT NULL')
       .skip(page * size)
       .take(size)
       .orderBy('postHighlight.expiresAt')
