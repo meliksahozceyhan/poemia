@@ -6,6 +6,7 @@ import { UserFollow } from './entity/user-follow.entity'
 import { UserService } from './user.service'
 import { User } from './entity/user.entity'
 import { BasePoemiaError } from 'src/sdk/Error/BasePoemiaError'
+import { PageResponse } from 'src/sdk/PageResponse'
 
 @Injectable()
 export class UserActionService {
@@ -77,5 +78,31 @@ export class UserActionService {
     const follow = await this.getFollowersOfUser(id)
     const blocked = await this.getBlockedOrBlockedByOdUsers(id)
     return [...new Set(follow.concat(blocked))]
+  }
+
+  public async getFollowRequests(user: User, page: number, size: number): Promise<PageResponse<UserFollow>> {
+    const result = await this.userFollowRepo.findAndCount({
+      where: {
+        user: { id: user.id },
+        isActive: false
+      },
+      order: {
+        createdAt: 'DESC'
+      },
+      skip: page * size,
+      take: size
+    })
+
+    return new PageResponse(result, page, size)
+  }
+
+  public async approveFollowRequest(id: string, user: User) {
+    const userFollow = await this.userFollowRepo.findOneByOrFail({ id: id })
+    if (userFollow.user.id !== user.id) {
+      throw new BasePoemiaError('userFollow.notSelfRequest')
+    }
+    userFollow.isActive = true
+    this.userFollowRepo.save(userFollow)
+    return userFollow
   }
 }

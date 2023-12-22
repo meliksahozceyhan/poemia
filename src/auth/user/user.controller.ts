@@ -224,4 +224,30 @@ export class UserController {
   public async getUserProgress(@CurrentUser() user: User) {
     return await this.userService.getUserProgress(user)
   }
+
+  @Get('self/followRequests')
+  @ApiUnauthorizedResponse({
+    description: 'Authentication required. In order for user to see the post. It has to registered with a email.'
+  })
+  @ApiOkResponsePaginated(UserFollow)
+  public async getFollowRequestsOfUses(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('size', ParseIntPipe) size: number,
+    @CurrentUser() user: User
+  ) {
+    return await this.userActionService.getFollowRequests(user, page, size)
+  }
+
+  @Put('follow/approve/:id')
+  @ApiOkResponse({
+    type: UserFollow,
+    description: 'End-point to use to approve the follow request of user. when success return 200'
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'When user try to approve a request that is not belong to itself this will throw a error',
+    status: '5XX'
+  })
+  public async approveFollowRequest(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+    return await this.userActionService.approveFollowRequest(id, user)
+  }
 }

@@ -90,6 +90,7 @@ export class PostService {
       .leftJoinAndMapOne('post.lastLike', 'post.likes', 'lastLike', 'lastLike.post.id = post.id')
       .leftJoinAndMapOne('lastLike.user', 'lastLike.user', 'user3', 'lastLike.user.id = user3.id')
       .leftJoinAndMapOne('user.activeStory', 'user.stories', 'userStories', 'userStories.user.id = user.id AND userStories.expiresAt > now()')
+      .leftJoinAndMapOne('userStories.user', 'userStories.user', 'user4', 'userStories.user.id = user4.id')
       .leftJoinAndMapMany('post.taggedUsers', 'post.taggedUsers', 'taggedUsers')
       //.where('post.language = :language', { language: language })
       .where('userBlocked.id IS NULL AND userBlocks.id IS NULL')
