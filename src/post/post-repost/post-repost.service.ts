@@ -62,7 +62,8 @@ export class PostRepostService {
       .leftJoinAndMapOne('lastLike.user', 'lastLike.user', 'user3', 'lastLike.user.id = user3.id')
       .leftJoinAndMapMany('post.taggedUsers', 'post.taggedUsers', 'taggedUsers')
       .leftJoinAndMapOne('user.activeStory', 'user.stories', 'userStories', 'userStories.user.id = user.id AND userStories.expiresAt > now()')
-      .leftJoinAndMapOne('user.isBlocked', 'user.blockeds', 'userBlocked', 'userBlocked.blockedBy.id = :requestedBy', { requestedBy: self.id })
+      .leftJoinAndMapOne('user.isBlocks', 'user.blocks', 'userBlocks', 'userBlocks.blocks.id = :requestedBy', { requestedBy: self.id })
+      .leftJoinAndMapOne('user.isBlocked', 'user.blockedBy', 'userBlocked', 'userBlocked.blockedBy.id = :requestedBy', { requestedBy: self.id })
       .whereInIds(postIds)
       .getManyAndCount()
 
