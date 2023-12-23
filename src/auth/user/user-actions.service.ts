@@ -105,4 +105,13 @@ export class UserActionService {
     this.userFollowRepo.save(userFollow)
     return userFollow
   }
+
+  public async rejectFollowRequest(id: string, user: User) {
+    const userFollow = await this.userFollowRepo.findOneByOrFail({ id: id })
+    if (userFollow.user.id !== user.id) {
+      throw new BasePoemiaError('userFollow.notSelfRequest')
+    }
+    this.userFollowRepo.remove(userFollow)
+    return id
+  }
 }
