@@ -250,4 +250,17 @@ export class UserController {
   public async approveFollowRequest(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
     return await this.userActionService.approveFollowRequest(id, user)
   }
+
+  @Put('follow/reject/:id')
+  @ApiOkResponse({
+    type: UserFollow,
+    description: 'End-point to use to approve the follow request of user. when success return 200'
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'When user try to approve a request that is not belong to itself this will throw a error',
+    status: '5XX'
+  })
+  public async rejectFollowRequest(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+    return await this.userActionService.rejectFollowRequest(id, user)
+  }
 }
