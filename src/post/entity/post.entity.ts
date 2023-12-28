@@ -131,6 +131,8 @@ export class Post extends BaseEntity {
 
   commentCount: number
 
+  weeklyLike: number
+
   lastLike: PostLike
   lastComment: PostComment
 }

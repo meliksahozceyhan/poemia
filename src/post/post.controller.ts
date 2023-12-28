@@ -131,4 +131,29 @@ export class PostController {
   ) {
     return await this.postRepostService.getRepostsOfUserWithAnotherUser(id, page, size, user)
   }
+
+  @Get('popular')
+  public async getPopular(@Query('page', ParseIntPipe) page: number, @Query('size', ParseIntPipe) size: number, @CurrentUser() user: User) {
+    return await this.postService.getPopularPosts(page, size, user)
+  }
+
+  @Get('explore')
+  public async getExplore(@Query('page', ParseIntPipe) page: number, @Query('size', ParseIntPipe) size: number, @CurrentUser() user: User) {
+    return await this.postService.getExplore(page, size, user)
+  }
+
+  @Get('search')
+  public async getSearch(
+    @Query('query') query: string,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('size', ParseIntPipe) size: number,
+    @CurrentUser() user: User
+  ) {
+    return await this.postService.search(page, size, user, query)
+  }
+
+  @Get('videos')
+  public async getVideos(@Query('page', ParseIntPipe) page: number, @Query('size', ParseIntPipe) size: number, @CurrentUser() user: User) {
+    return await this.postService.getVideos(page, size, user)
+  }
 }
