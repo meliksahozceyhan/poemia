@@ -209,9 +209,14 @@ export class UserService {
 
   public async searchUsersByUsername(username: string, page: number, size: number) {
     const users = await this.repository.findAndCount({
-      where: {
-        username: ILike(`%${username.toLocaleLowerCase()}%`)
-      },
+      where: [
+        {
+          username: ILike(`%${username.toLocaleLowerCase()}%`)
+        },
+        {
+          nameSurname: ILike(`%${username.toLocaleLowerCase()}%`)
+        }
+      ],
       skip: page * size,
       take: size,
       order: { username: 'ASC' }

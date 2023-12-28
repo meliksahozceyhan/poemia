@@ -70,8 +70,119 @@ export class PostService {
   public async getFeedWithUser(page: number, size: number, userId: string, _language: LanguageNames) {
     /*  const exludeUserIds = await this.userActionsService.getExclusiveUserIdsForFeed(userId)
     console.log(exludeUserIds) */
+    const result = await this.getJoinedQueryBuilder(userId)
+      //.where('post.language = :language', { language: language })
+      .where('userBlocked.id IS NULL AND userBlocks.id IS NULL')
+      .andWhere('post.readerVideoPath IS NULL')
+      .skip(page * size)
+      .take(size)
+      .orderBy('postHighlight.expiresAt', 'DESC')
+      .addOrderBy('post.createdAt', 'DESC')
+      .getManyAndCount()
+
+    return new PageResponse(result, page, size)
+  }
+
+  public async getReadersVideos(page: number, size: number, userId: string) {
+    const result = await this.getJoinedQueryBuilder(userId)
+      .where('userBlocked.id IS NULL AND userBlocks.id IS NULL')
+      //.andWhere('userFollows.id IS NULL')
+      .andWhere('post.readerVideoPath IS NOT NULL')
+      .skip(page * size)
+      .take(size)
+      .orderBy('postHighlight.expiresAt', 'DESC')
+      .addOrderBy('post.createdAt', 'DESC')
+      .getManyAndCount()
+
+    return new PageResponse(result, page, size)
+  }
+
+  public async getPostsOfUser(page: number, size: number, userId: string, requestedBy: string) {
+    const result = await this.getJoinedQueryBuilder(requestedBy)
+      .where('post.user.id = :userId', { userId })
+      .skip(page * size)
+      .take(size)
+      .orderBy('postHighlight.expiresAt', 'DESC')
+      .addOrderBy('post.createdAt', 'DESC')
+      .getManyAndCount()
+    return new PageResponse(result, page, size)
+  }
+
+  public async getPopularPosts(page: number, size: number, user: User) {
+    const postIds = await this.getPostIdsByLikeCountInLast2Weeks(page, size)
+    const result = await this.getJoinedQueryBuilder(user.id)
+      //.where('post.language = :language', { language: language })
+      .where(
+        `
+				userBlocked.id IS NULL AND userBlocks.id IS NULL AND post.readerVideoPath IS NULL 
+				AND post.walpaperPath IS NULL AND post.videoPath IS NULL
+			`
+      )
+      .andWhereInIds(postIds)
+      .orderBy('postHighlight.expiresAt', 'DESC')
+      .addOrderBy('post.createdAt', 'DESC')
+      .getManyAndCount()
+
+    return new PageResponse(result, page, size)
+  }
+
+  public async getExplore(page: number, size: number, user: User) {
+    //TODO: Change the 2 value to 10 before deploy
+    const postIds = await this.getPostIdsByLikeCount(page, size, 2)
+    const result = await this.getJoinedQueryBuilder(user.id)
+      //.where('post.language = :language', { language: language })
+      .where(
+        `
+				userBlocked.id IS NULL AND userBlocks.id IS NULL AND (post.readerVideoPath IS NOT NULL 
+				OR post.walpaperPath IS NOT NULL OR post.videoPath IS NOT NULL )
+			`
+      )
+      .andWhereInIds(postIds)
+      .getManyAndCount()
+
+    return new PageResponse(result, page, size)
+  }
+
+  public async search(page: number, size: number, user: User, query: string) {
+    const result = await this.getJoinedQueryBuilder(user.id)
+      //.where('post.language = :language', { language: language })
+      .where(
+        `
+				userBlocked.id IS NULL AND userBlocks.id IS NULL AND (UPPER(post.content) ILIKE ('%' || :query || '%')
+				OR :query1 ILIKE ANY(string_to_array(post.tags,',')))
+			`,
+        { query: query, query1: query }
+      )
+
+      .skip(page * size)
+      .take(size)
+      .orderBy('postHighlight.expiresAt', 'DESC')
+      .addOrderBy('post.createdAt', 'DESC')
+      .getManyAndCount()
+
+    return new PageResponse(result, page, size)
+  }
+
+  public async getVideos(page: number, size: number, user: User) {
+    const result = await this.getJoinedQueryBuilder(user.id)
+      //.where('post.language = :language', { language: language })
+      .where(
+        `
+				userBlocked.id IS NULL AND userBlocks.id IS NULL AND post.videoPath IS NOT NULL
+			`
+      )
+
+      .skip(page * size)
+      .take(size)
+      .orderBy('postHighlight.expiresAt', 'DESC')
+      .addOrderBy('post.createdAt', 'DESC')
+      .getManyAndCount()
+    return new PageResponse(result, page, size)
+  }
+
+  private getJoinedQueryBuilder(userId: string) {
     const queryBuilder = this.entityManager.createQueryBuilder(Post, 'post')
-    const result = await queryBuilder
+    return queryBuilder
       .leftJoinAndMapOne('post.user', 'post.user', 'user', 'post.user.id = user.id')
       .loadRelationCountAndMap('post.viewCount', 'post.views', 'postView')
       .loadRelationCountAndMap('post.likeCount', 'post.likes', 'postLike', (qb) => qb.andWhere({ isSuper: false }))
@@ -92,82 +203,40 @@ export class PostService {
       .leftJoinAndMapOne('user.activeStory', 'user.stories', 'userStories', 'userStories.user.id = user.id AND userStories.expiresAt > now()')
       .leftJoinAndMapOne('userStories.user', 'userStories.user', 'user4', 'userStories.user.id = user4.id')
       .leftJoinAndMapMany('post.taggedUsers', 'post.taggedUsers', 'taggedUsers')
-      //.where('post.language = :language', { language: language })
-      .where('userBlocked.id IS NULL AND userBlocks.id IS NULL')
-      .andWhere('post.readerVideoPath IS NULL')
-      .skip(page * size)
-      .take(size)
-      .orderBy('postHighlight.expiresAt')
-      .addOrderBy('post.createdAt', 'DESC')
-      .getManyAndCount()
-
-    return new PageResponse(result, page, size)
   }
 
-  public async getReadersVideos(page: number, size: number, userId: string) {
-    const queryBuilder = this.entityManager.createQueryBuilder(Post, 'post')
-    const result = await queryBuilder
-      .leftJoinAndMapOne('post.user', 'post.user', 'user', 'post.user.id = user.id')
-      .loadRelationCountAndMap('post.viewCount', 'post.views', 'postView')
-      .loadRelationCountAndMap('post.likeCount', 'post.likes', 'postLike', (qb) => qb.andWhere({ isSuper: false }))
-      .loadRelationCountAndMap('post.superLikeCount', 'post.likes', 'postLike', (qb) => qb.andWhere({ isSuper: true }))
-      .loadRelationCountAndMap('post.commentCount', 'post.comments', 'postComment')
-      .loadRelationCountAndMap('post.repostCount', 'post.reposts', 'postRepost')
-      .leftJoinAndMapOne('post.isHighlighted', 'post.highlights', 'postHighlight', 'postHighlight.expiresAt > now()')
-      .leftJoinAndMapOne('post.isLiked', 'post.likes', 'postLiked', 'postLiked.user.id = :userId', { userId })
-      .leftJoinAndMapOne('post.isRepoemed', 'post.reposts', 'postResposted', 'postResposted.user.id = :userId', { userId })
-      .leftJoinAndMapOne('user.isFollowed', 'user.followers', 'userFollows', 'userFollows.follower.id = :userId', { userId })
-      .leftJoinAndMapOne('user.isBlocks', 'user.blocks', 'userBlocks', 'userBlocks.blocks.id = :userId', { userId })
-      .leftJoinAndMapOne('user.isBlocked', 'user.blockedBy', 'userBlocked', 'userBlocked.blockedBy.id = :userId', { userId })
-      .leftJoinAndMapOne('post.lastComment', 'post.comments', 'lastComment', 'lastComment.post.id = post.id')
-      .leftJoinAndMapOne('lastComment.user', 'lastComment.user', 'user2', 'lastComment.user.id = user2.id')
-      .leftJoinAndMapOne('lastComment.mention', 'lastComment.mention', 'mention', 'lastComment.mention.id = mention.id')
-      .leftJoinAndMapOne('post.lastLike', 'post.likes', 'lastLike', 'lastLike.post.id = post.id')
-      .leftJoinAndMapOne('lastLike.user', 'lastLike.user', 'user3', 'lastLike.user.id = user3.id')
-      .leftJoinAndMapOne('user.activeStory', 'user.stories', 'userStories', 'userStories.user.id = user.id AND userStories.expiresAt > now()')
-      .leftJoinAndMapMany('post.taggedUsers', 'post.taggedUsers', 'taggedUsers')
-      //.where('post.language = :language', { language: language })
-      .where('userBlocked.id IS NULL AND userBlocks.id IS NULL')
-      //.andWhere('userFollows.id IS NULL')
-      .andWhere('post.readerVideoPath IS NOT NULL')
-      .skip(page * size)
-      .take(size)
-      .orderBy('postHighlight.expiresAt')
-      .addOrderBy('post.createdAt', 'DESC')
-      .getManyAndCount()
+  public async getPostIdsByLikeCount(page: number, size: number, likeCount: number) {
+    const offset = page * size
+    const res = await this.entityManager.query(
+      `
+			SELECT po.id  FROM post po
+			LEFT JOIN post_like pl ON pl.post_id = po.id
+			GROUP BY po.id
+			HAVING count(pl.id) > $1 
+			ORDER BY count(pl.id) DESC,  po.created_at DESC
+			LIMIT $2 OFFSET $3
+		`,
+      [likeCount, size, offset]
+    )
 
-    return new PageResponse(result, page, size)
+    return res.map((val) => val.id)
   }
 
-  public async getPostsOfUser(page: number, size: number, userId: string, requestedBy: string) {
-    const queryBuilder = this.entityManager.createQueryBuilder(Post, 'post')
-    const result = await queryBuilder
-      .leftJoinAndMapOne('post.user', 'post.user', 'user', 'post.user.id = user.id')
-      .loadRelationCountAndMap('post.viewCount', 'post.views', 'postView')
-      .loadRelationCountAndMap('post.likeCount', 'post.likes', 'postLike', (qb) => qb.andWhere({ isSuper: false }))
-      .loadRelationCountAndMap('post.superLikeCount', 'post.likes', 'postLike', (qb) => qb.andWhere({ isSuper: true }))
-      .loadRelationCountAndMap('post.commentCount', 'post.comments', 'postComment')
-      .loadRelationCountAndMap('post.repostCount', 'post.reposts', 'postRepost')
-      .leftJoinAndMapOne('post.isHighlighted', 'post.highlights', 'postHighlight', 'postHighlight.expiresAt > now()')
-      .leftJoinAndMapOne('post.isLiked', 'post.likes', 'postLiked', 'postLiked.user.id = :requestedBy', { requestedBy: requestedBy })
-      .leftJoinAndMapOne('post.isRepoemed', 'post.reposts', 'postResposted', 'postResposted.user.id = :requestedBy', { requestedBy: requestedBy })
-      .leftJoinAndMapOne('user.isFollowed', 'user.followers', 'userFollows', 'userFollows.follower.id = :requestedBy', { requestedBy: requestedBy })
-      .leftJoinAndMapOne('user.isBlocks', 'user.blocks', 'userBlocks', 'userBlocks.blocks.id = :requestedBy', { requestedBy: requestedBy })
-      .leftJoinAndMapOne('user.isBlocked', 'user.blockedBy', 'userBlocked', 'userBlocked.blockedBy.id = :requestedBy', { requestedBy: requestedBy })
-      .leftJoinAndMapOne('post.lastComment', 'post.comments', 'lastComment', 'lastComment.post.id = post.id')
-      .leftJoinAndMapOne('lastComment.user', 'lastComment.user', 'user2', 'lastComment.user.id = user2.id')
-      .leftJoinAndMapOne('lastComment.mention', 'lastComment.mention', 'mention', 'lastComment.mention.id = mention.id')
-      .leftJoinAndMapOne('post.lastLike', 'post.likes', 'lastLike', 'lastLike.post.id = post.id')
-      .leftJoinAndMapOne('lastLike.user', 'lastLike.user', 'user3', 'lastLike.user.id = user3.id')
-      .where('post.user.id = :userId', { userId })
-      .skip(page * size)
-      .take(size)
-      .orderBy('postHighlight.expiresAt')
-      .addOrderBy('post.createdAt', 'DESC')
-      .getManyAndCount()
+  public async getPostIdsByLikeCountInLast2Weeks(page: number, size: number) {
+    const oneWeekBefore = new Date()
+    oneWeekBefore.setDate(oneWeekBefore.getDate() - 7)
+    const offset = page * size
+    const res = await this.entityManager.query(
+      `
+			SELECT po.id  FROM post po
+			LEFT JOIN post_like pl ON pl.post_id = po.id AND pl.created_at > $1
+			GROUP BY po.id
+			ORDER BY count(pl.id) DESC,  po.created_at DESC
+			LIMIT $2 OFFSET $3
+		`,
+      [oneWeekBefore, size, offset]
+    )
 
-    /*  const sql = await queryBuilder.getSql()
-    console.log(sql) */
-    return new PageResponse(result, page, size)
+    return res.map((val) => val.id)
   }
 }
