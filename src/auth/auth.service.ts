@@ -79,6 +79,7 @@ export class AuthService {
         throw new UserNotActivatedError('Account not activated!', { resendOtpResponse, phoneNumber: user.phoneNumber, email: user.email })
       }
       if (await bcrypt.compare(loginDto.password, user.password as string)) {
+        this.checkIfUserIsDeletedAndRemoveDeletedStatus(user)
         return await this.createToken(user)
       }
       throw new UnauthorizedException('auth.wrongPassword')
@@ -92,6 +93,7 @@ export class AuthService {
         throw new UserNotActivatedError('Account not activated!', { resendOtpResponse, phoneNumber: user.phoneNumber, email: user.email })
       }
       if (await bcrypt.compare(loginDto.password, user.password as string)) {
+        this.checkIfUserIsDeletedAndRemoveDeletedStatus(user)
         return await this.createToken(user)
       }
       throw new UnauthorizedException('auth.wrongPassword')
@@ -172,11 +174,37 @@ export class AuthService {
   public async renewPasswordOfUser(renewPasswordDto: RenewPasswordDto, user: User): Promise<void> {
     const result = await this.userService.findByEmail(user.email)
     if (renewPasswordDto.oldPassword !== null && renewPasswordDto.oldPassword !== undefined) {
-      if (!(await bcrypt.compare(renewPasswordDto.oldPassword, user.password as string))) {
-        throw new UnauthorizedException('Wrong Password')
+      if (!(await bcrypt.compare(renewPasswordDto.oldPassword, result.password as string))) {
+        throw new UnauthorizedException('auth.wrongPassword')
       }
     }
     result.password = await bcrypt.hash(renewPasswordDto.newPassword as string, 10)
-    this.userService.saveUser(user)
+    this.userService.saveUser(result)
+  }
+
+  public async logout(user: User) {
+    const result = await this.userService.findByEmail(user.email)
+    result.fcmToken = null
+    this.userService.saveUser(result)
+  }
+
+  public async deleteAccount(user: User) {
+    const result = await this.userService.findByEmail(user.email)
+    result.isDeleted = true
+    result.fcmToken = null
+    this.userService.saveUser(result)
+  }
+
+  public async checkIfUserIsDeletedAndRemoveDeletedStatus(user: User) {
+    if (user.isDeleted) {
+      const date = new Date()
+      date.setMonth(date.getMonth() - 1)
+      if (user.updatedAt > date) {
+        user.isDeleted = false
+        this.userService.saveUser(user)
+        return user
+      }
+      throw new UnauthorizedException()
+    }
   }
 }

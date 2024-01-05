@@ -133,13 +133,23 @@ export class PostController {
   }
 
   @Get('popular')
-  public async getPopular(@Query('page', ParseIntPipe) page: number, @Query('size', ParseIntPipe) size: number, @CurrentUser() user: User) {
-    return await this.postService.getPopularPosts(page, size, user)
+  public async getPopular(
+    @Query('query') query: string,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('size', ParseIntPipe) size: number,
+    @CurrentUser() user: User
+  ) {
+    return await this.postService.getPopularPosts(page, size, user, query)
   }
 
   @Get('explore')
-  public async getExplore(@Query('page', ParseIntPipe) page: number, @Query('size', ParseIntPipe) size: number, @CurrentUser() user: User) {
-    return await this.postService.getExplore(page, size, user)
+  public async getExplore(
+    @Query('query') query: string,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('size', ParseIntPipe) size: number,
+    @CurrentUser() user: User
+  ) {
+    return await this.postService.getExplore(page, size, user, query)
   }
 
   @Get('search')
@@ -153,7 +163,12 @@ export class PostController {
   }
 
   @Get('videos')
-  public async getVideos(@Query('page', ParseIntPipe) page: number, @Query('size', ParseIntPipe) size: number, @CurrentUser() user: User) {
-    return await this.postService.getVideos(page, size, user)
+  public async getVideos(
+    @Query('query') query: string,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('size', ParseIntPipe) size: number,
+    @CurrentUser() user: User
+  ) {
+    return await this.postService.getVideos(page, size, user, query)
   }
 }

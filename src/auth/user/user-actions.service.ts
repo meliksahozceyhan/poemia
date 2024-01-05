@@ -96,6 +96,19 @@ export class UserActionService {
     return new PageResponse(result, page, size)
   }
 
+  public async getBlockedUsers(user: User, page: number, size: number) {
+    const result = await this.userBlockedRepo.findAndCount({
+      where: {
+        blockedBy: { id: user.id }
+      },
+      order: { createdAt: 'DESC' },
+      skip: page * size,
+      take: size
+    })
+
+    return new PageResponse(result, page, size)
+  }
+
   public async approveFollowRequest(id: string, user: User) {
     const userFollow = await this.userFollowRepo.findOneByOrFail({ id: id })
     if (userFollow.user.id !== user.id) {

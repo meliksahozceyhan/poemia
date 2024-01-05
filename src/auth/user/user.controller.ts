@@ -208,9 +208,10 @@ export class UserController {
   public async searchUsersByUserName(
     @Query('page', ParseIntPipe) page: number,
     @Query('size', ParseIntPipe) size: number,
-    @Query('username') username: string
+    @Query('username') username: string,
+    @CurrentUser() user: User
   ) {
-    return await this.userService.searchUsersByUsername(username, page, size)
+    return await this.userService.searchWithActiveStory(username, user.id, page, size)
   }
 
   @Get('self/getSelfProgress')
@@ -236,6 +237,15 @@ export class UserController {
     @CurrentUser() user: User
   ) {
     return await this.userActionService.getFollowRequests(user, page, size)
+  }
+
+  @Get('self/blockedUser')
+  @ApiUnauthorizedResponse({
+    description: 'Authentication required. In order for user to see the post. It has to registered with a email.'
+  })
+  @ApiOkResponsePaginated(UserFollow)
+  public async getBlockedUsers(@Query('page', ParseIntPipe) page: number, @Query('size', ParseIntPipe) size: number, @CurrentUser() user: User) {
+    return await this.userActionService.getBlockedUsers(user, page, size)
   }
 
   @Put('follow/approve/:id')

@@ -108,7 +108,7 @@ export class PostService {
     return new PageResponse(result, page, size)
   }
 
-  public async getPopularPosts(page: number, size: number, user: User) {
+  public async getPopularPosts(page: number, size: number, user: User, query: string) {
     const postIds = await this.getPostIdsByLikeCountInLast2Weeks(page, size)
     const result = await this.getJoinedQueryBuilder(user.id)
       //.where('post.language = :language', { language: language })
@@ -116,7 +116,10 @@ export class PostService {
         `
 				userBlocked.id IS NULL AND userBlocks.id IS NULL AND post.readerVideoPath IS NULL 
 				AND post.walpaperPath IS NULL AND post.videoPath IS NULL
-			`
+				AND (UPPER(post.content) ILIKE ('%' || :query || '%')
+				OR :query1 ILIKE ANY(string_to_array(post.tags,',')))
+			`,
+        { query: query, query1: query }
       )
       .andWhereInIds(postIds)
       .orderBy('postHighlight.expiresAt', 'DESC')
@@ -126,7 +129,7 @@ export class PostService {
     return new PageResponse(result, page, size)
   }
 
-  public async getExplore(page: number, size: number, user: User) {
+  public async getExplore(page: number, size: number, user: User, query: string) {
     //TODO: Change the 2 value to 10 before deploy
     const postIds = await this.getPostIdsByLikeCount(page, size, 2)
     const result = await this.getJoinedQueryBuilder(user.id)
@@ -135,7 +138,10 @@ export class PostService {
         `
 				userBlocked.id IS NULL AND userBlocks.id IS NULL AND (post.readerVideoPath IS NOT NULL 
 				OR post.walpaperPath IS NOT NULL OR post.videoPath IS NOT NULL )
-			`
+				AND (UPPER(post.content) ILIKE ('%' || :query || '%')
+				OR :query1 ILIKE ANY(string_to_array(post.tags,',')))
+			`,
+        { query: query, query1: query }
       )
       .andWhereInIds(postIds)
       .getManyAndCount()
@@ -163,13 +169,16 @@ export class PostService {
     return new PageResponse(result, page, size)
   }
 
-  public async getVideos(page: number, size: number, user: User) {
+  public async getVideos(page: number, size: number, user: User, query: string) {
     const result = await this.getJoinedQueryBuilder(user.id)
       //.where('post.language = :language', { language: language })
       .where(
         `
 				userBlocked.id IS NULL AND userBlocks.id IS NULL AND post.videoPath IS NOT NULL
-			`
+				AND (UPPER(post.content) ILIKE ('%' || :query || '%')
+				OR :query1 ILIKE ANY(string_to_array(post.tags,',')))
+			`,
+        { query: query, query1: query }
       )
 
       .skip(page * size)
@@ -202,6 +211,7 @@ export class PostService {
       .leftJoinAndMapOne('lastLike.user', 'lastLike.user', 'user3', 'lastLike.user.id = user3.id')
       .leftJoinAndMapOne('user.activeStory', 'user.stories', 'userStories', 'userStories.user.id = user.id AND userStories.expiresAt > now()')
       .leftJoinAndMapOne('userStories.user', 'userStories.user', 'user4', 'userStories.user.id = user4.id')
+      .leftJoinAndMapOne('post.isSelfPost', 'post.user', 'userSelf', 'post.user.id = userSelf.id AND userSelf.id = :userId', { userId })
       .leftJoinAndMapMany('post.taggedUsers', 'post.taggedUsers', 'taggedUsers')
   }
 
