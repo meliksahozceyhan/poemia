@@ -47,7 +47,7 @@ export class User extends BaseEntity {
   @ApiProperty({ nullable: true })
   nameSurname: string
 
-  @Column()
+  @Column({ nullable: true })
   @ApiProperty()
   @Allow()
   fcmToken: string
@@ -87,6 +87,11 @@ export class User extends BaseEntity {
   @Allow()
   isPrivate: boolean
 
+  @Column({ default: false })
+  @ApiProperty()
+  @Allow()
+  isNotificationPrivate: boolean
+
   @Column({ default: true })
   @ApiProperty()
   @Allow()
@@ -121,6 +126,11 @@ export class User extends BaseEntity {
   @ApiProperty({ nullable: true })
   @Allow()
   detail: string
+
+  @Column({ default: false })
+  @ApiProperty()
+  @Allow()
+  isDeleted: boolean
 
   @Column({ nullable: true, type: 'text' })
   @ApiProperty({ nullable: true })

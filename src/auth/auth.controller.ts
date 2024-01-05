@@ -13,6 +13,7 @@ import { ConfirmOtpDto } from './dto/confirm-otp-dto'
 import { ResetPasswordDto } from './dto/reset-password-dto'
 import { UserNotActivatedErrorFilter } from 'src/filters/user-not-activater-error.filter'
 import { OtpRequestEmailDto } from './dto/otp-request-email-dto'
+import { RenewPasswordDto } from './dto/renew-password.dto'
 
 @Controller('auth')
 @ApiTags('auth')
@@ -29,6 +30,14 @@ export class AuthController {
   })
   public async signUp(@Body() registerDto: RegisterDto): Promise<OtpReponse> {
     return this.authService.signUp(registerDto)
+  }
+
+  @Post('/logout')
+  @ApiOkResponse({
+    type: ''
+  })
+  public async logout(@CurrentUser() user: User) {
+    return await this.authService.logout(user)
   }
 
   @SkipAuth()
@@ -123,6 +132,15 @@ export class AuthController {
     return this.authService.resetPassword(resetPasswordDto)
   }
 
+  @Post('change/password')
+  @ApiOkResponse({
+    type: JwtTokenResponse,
+    description: 'returns JWT response. with new credentials'
+  })
+  public async changePassword(@Body() renewPasswordDto: RenewPasswordDto, @CurrentUser() user: User) {
+    return this.authService.renewPasswordOfUser(renewPasswordDto, user)
+  }
+
   @SkipAuth()
   @Post('resend-code/email')
   @ApiOkResponse({
@@ -147,5 +165,15 @@ export class AuthController {
   })
   public async activateUserViaOTp(@Body() confirmOtpDto: ConfirmOtpDto): Promise<JwtTokenResponse> {
     return this.authService.activateAccountViaEmailOtp(confirmOtpDto)
+  }
+
+  @Post('delete/account')
+  @ApiOkResponse({
+    type: 'void',
+    description: 'Use this end point to activate the user from Email OTP'
+  })
+  @ApiOperation({})
+  public async deleteAccount(@CurrentUser() user: User) {
+    return this.authService.deleteAccount(user)
   }
 }

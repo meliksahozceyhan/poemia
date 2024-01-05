@@ -1,7 +1,7 @@
 import { Inject, Injectable, UnauthorizedException, forwardRef } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
+import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm'
 import { User } from './entity/user.entity'
-import { ILike, Repository } from 'typeorm'
+import { EntityManager, ILike, Repository } from 'typeorm'
 import { RegisterDto } from '../dto/register.dto'
 import * as bcrypt from 'bcrypt'
 import { UserAbout } from './entity/user-about.entity'
@@ -29,7 +29,8 @@ export class UserService {
     @InjectRepository(UserFollow) private readonly userFollowRepo: Repository<UserFollow>,
     @InjectRepository(UserBadge) private readonly userbadgeRepo: Repository<UserBadge>,
     @Inject(forwardRef(() => StoryService)) private storyService: StoryService,
-    @InjectQueue('view') private readonly viewQueue: Queue
+    @InjectQueue('view') private readonly viewQueue: Queue,
+    @InjectEntityManager() private readonly entityManager: EntityManager
   ) {}
 
   public async findUserByUserName(username: string): Promise<User> {
@@ -222,6 +223,25 @@ export class UserService {
       order: { username: 'ASC' }
     })
     return new PageResponse(users, page, size)
+  }
+
+  public async searchWithActiveStory(username: string, userId: string, page: number, size: number) {
+    const res = await this.entityManager
+      .createQueryBuilder(User, 'user')
+      .leftJoinAndMapOne('user.isFollowed', 'user.followers', 'userFollows', 'userFollows.follower.id = :userId', { userId })
+      .leftJoinAndMapOne('user.isBlocks', 'user.blocks', 'userBlocks', 'userBlocks.blocks.id = :userId', { userId })
+      .leftJoinAndMapOne('user.isBlocked', 'user.blockedBy', 'userBlocked', 'userBlocked.blockedBy.id = :userId', { userId })
+      .leftJoinAndMapOne('userStories.user', 'userStories.user', 'user2', 'userStories.user.id = user2.id')
+      .leftJoinAndMapOne('user.activeStory', 'user.stories', 'userStories', 'userStories.user.id = user.id AND userStories.expiresAt > now()')
+      .where(`UPPER(user.username) ILIKE ('%' || :username || '%') OR UPPER(user.name_surname) ILIKE ('%' || :username || '%')`, {
+        username: username
+      })
+      .orderBy('user.username', 'ASC')
+      .skip(page * size)
+      .take(size)
+      .getManyAndCount()
+
+    return new PageResponse(res, page, size)
   }
 
   public async getUserProgress(user: User) {
