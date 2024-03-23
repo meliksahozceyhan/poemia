@@ -6,7 +6,10 @@ import { InjectDataSource } from '@nestjs/typeorm'
 
 @Injectable()
 export class PostSubscriber implements EntitySubscriberInterface<Post> {
-  constructor(@InjectDataSource() readonly dataSource: DataSource, @Inject(forwardRef(() => UserService)) private userService: UserService) {
+  constructor(
+    @InjectDataSource() readonly dataSource: DataSource,
+    @Inject(forwardRef(() => UserService)) private userService: UserService
+  ) {
     dataSource.subscribers.push(this)
     console.log('Subscriber Inıti')
   }

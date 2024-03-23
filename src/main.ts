@@ -27,6 +27,8 @@ async function bootstrap() {
   app.setGlobalPrefix('poemia/api/v1')
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true, skipUndefinedProperties: true, enableDebugMessages: true }))
 
+  app.enableShutdownHooks()
+
   const config = new DocumentBuilder()
     .setTitle('Poemia')
     .setDescription('This Page is the Swagger OpenAPI documentation for Poemia')

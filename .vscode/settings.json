@@ -10,5 +10,6 @@
   "better-comments.multilineComments": true,
   "[sql]": {
     "editor.defaultFormatter": "adpyke.vscode-sql-formatter"
-  }
+  },
+  "prettier.endOfLine": "crlf"
 }
