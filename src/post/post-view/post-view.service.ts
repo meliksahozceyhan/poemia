@@ -18,6 +18,7 @@ export class PostViewService {
       return await this.repo.save(entity)
     } catch (error) {
       this.logger.error(error)
+      return null
     }
   }
 }

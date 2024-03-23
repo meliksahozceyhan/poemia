@@ -6,7 +6,7 @@ import { QueryFailedError } from 'typeorm'
 
 @Catch(QueryFailedError)
 export class QueryFailedExceptionFilter implements ExceptionFilter<QueryFailedError> {
-  catch(exception: QueryFailedError, host: ArgumentsHost) {
+  catch(exception: any, host: ArgumentsHost) {
     const context = host.switchToHttp()
     const response = context.getResponse<Response>()
     const request = context.getRequest<Request>()

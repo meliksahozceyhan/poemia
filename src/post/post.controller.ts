@@ -15,7 +15,10 @@ import { LanguageNames } from 'src/util/languages'
   description: 'Given Entity Not Found'
 })
 export class PostController {
-  constructor(private readonly postService: PostService, private readonly postRepostService: PostRepostService) {}
+  constructor(
+    private readonly postService: PostService,
+    private readonly postRepostService: PostRepostService
+  ) {}
 
   @Post()
   @ApiBearerAuth()
