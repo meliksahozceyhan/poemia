@@ -30,6 +30,11 @@ export class RoomController {
     return await this.roomService.getAllRoomsOfUser(page, size, user.id)
   }
 
+  @Get('general')
+  public async getGeneralRoom(@CurrentUser() user: User) {
+    return await this.roomService.getGeneralChatRoom(user)
+  }
+
   @Get(':id')
   public async getOne(@Param('id', ParseUUIDPipe) id: string) {
     return await this.roomService.getSingleRoom(id)

@@ -80,15 +80,24 @@ export class RoomService {
     const queryBuilder = this.entityManager
       .createQueryBuilder(Room, 'room')
       .leftJoinAndMapOne('room.createdBy', 'room.createdBy', 'createdBy', 'room.createdBy.id = createdBy.id')
-      .leftJoinAndMapMany('room.participants', 'room.participants', 'participants')
+      .leftJoin('room.participants', 'participants')
+      .leftJoinAndMapMany('room.participants', 'room.participants', 'participants2')
       .leftJoinAndMapOne('room.lastMessage', 'room.messages', 'lastMessage', 'lastMessage.room.id = room.id')
       .leftJoinAndMapOne('lastMessage.sentBy', 'lastMessage.sentBy', 'sentBy2', 'lastMessage.sentBy.id = sentBy2.id')
-      .where(`:userId = participants.id`, { userId: userId })
+      .where(`participants.id = :userId `, { userId: userId })
       .orderBy('lastMessage.createdAt', 'DESC')
     return queryBuilder
   }
 
   public async getSingleRoom(id: string) {
     return await this.repo.findOneByOrFail({ id: id })
+  }
+
+  public async getGeneralChatRoom(user: User) {
+    return await this.repo.findOneByOrFail({ isGeneralChat: true, language: user.language })
+  }
+
+  public async getGeneralRoomIds() {
+    return await this.repo.findBy({ isGeneralChat: true })
   }
 }
