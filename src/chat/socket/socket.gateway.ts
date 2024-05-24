@@ -3,6 +3,7 @@ import {
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer
@@ -20,7 +21,7 @@ import { Queue } from 'bull'
 import { InjectQueue } from '@nestjs/bull'
 
 @WebSocketGateway(3001, { namespace: 'socket', cors: '*', transports: 'websocket' })
-export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
+export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection, OnGatewayInit<Server> {
   @WebSocketServer() server: Server
   private readonly logger = new Logger(SocketGateway.name)
 
@@ -29,11 +30,22 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     @Inject(forwardRef(() => MessageService)) private readonly messageService: MessageService,
     @InjectQueue('view') private readonly viewQueue: Queue
   ) {}
+
+  afterInit(server: Server) {
+    this.logger.debug(server + ' : Socket Gateway Up And Running')
+    this.socketService.initGeneralChat()
+  }
+
   handleConnection(client: Socket) {
     const userId = client.handshake.query?.id as string
+    const language = client.handshake.query?.language as string
 
     if (userId) {
       client.join(userId)
+      if (language) {
+        client.join(language)
+        this.logger.debug(client.id + ' connected to general room with language ' + language)
+      }
       this.socketService.addUserToOnlineList(userId)
       this.logger.debug(client.id + ' connected to self room with id ' + userId)
     } else {
@@ -55,11 +67,6 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
     client.to(socketRoomIds).emit('onNewMessage', result)
   }
 
-  /**
-   * TODO: Add a new message onMessageRead When another person reads the message Send a simple message
-   * * { roomId, messageId, readById }
-   */
-
   @SubscribeMessage('readMessage')
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true, skipUndefinedProperties: true, enableDebugMessages: true }))
   public async handleOnMessageView(@MessageBody() data: MessageViewDto, @ConnectedSocket() client: Socket) {
@@ -72,5 +79,17 @@ export class SocketGateway implements OnGatewayDisconnect, OnGatewayConnection {
   public async notifyClientsOfReadMessages(roomId: string, userId: string) {
     const userIds = await this.socketService.getUsersOfRoom(roomId)
     this.server.to(userIds).emit('notificationsRead', { roomId: roomId, userId: userId })
+  }
+
+  @SubscribeMessage('generalChat')
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true, skipUndefinedProperties: true, enableDebugMessages: true }))
+  public async handleGeneralChatMessage(@MessageBody() data: MessageDto, @ConnectedSocket() client: Socket) {
+    const userId = client.handshake.query?.id as string
+    const language = client.handshake.query?.language as string
+    const generalRoomId = await this.socketService.getGeneralRoomId(language)
+
+    const result = await this.messageService.saveMessageToGeneralChat(data, userId, generalRoomId)
+
+    this.server.to(language).emit('generalChat', { result })
   }
 }

@@ -37,4 +37,12 @@ export class MessageService {
 
     return new PageResponse(response, page, size)
   }
+
+  public async saveMessageToGeneralChat(dto: MessageDto, userId: string, generalRoomId: string) {
+    let entity = this.repo.create()
+    Object.assign(entity, dto)
+    entity = await this.repo.save({ ...entity, sentBy: { id: userId }, room: { id: generalRoomId } })
+
+    return entity
+  }
 }

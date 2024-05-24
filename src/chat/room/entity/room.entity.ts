@@ -23,12 +23,16 @@ export class Room extends BaseEntity {
   @Column({ default: false })
   @ApiProperty()
   @Allow()
-  isGeneralChat: boolean
+  isGroupChat: boolean
 
   @Column({ nullable: true })
   @ApiProperty({ nullable: true })
   @IsString()
   roomName: string
+
+  @Column({ default: false })
+  @ApiProperty()
+  isGeneralChat: boolean
 
   @Column({ nullable: true })
   @ApiProperty({ nullable: true })
