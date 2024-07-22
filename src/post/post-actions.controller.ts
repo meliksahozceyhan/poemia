@@ -59,6 +59,7 @@ export class PostActionController {
   })
   @ApiBearerAuth()
   public async likePost(@Param('postId', ParseUUIDPipe) postId: string, @Body() postLikeDto: PostLikeDto, @CurrentUser() user: User) {
+    //TODO: after like.post add an event to the queue too add points to a post taht is a part of the competition. 1 points for normal like 2 points for the super like
     return await this.postLikeService.likePost(postId, postLikeDto, user)
   }
 
@@ -93,6 +94,7 @@ export class PostActionController {
     @Body() postCommentCreateDto: PostCommentCreateDto,
     @CurrentUser() user: User
   ) {
+    //TODO: after commentPost add an event to the queue too add points to a post taht is a part of the competition. 0.5 points for comment.
     return await this.postCommentService.createCommentOnPost(postId, postCommentCreateDto, user)
   }
 

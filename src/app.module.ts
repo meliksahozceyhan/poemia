@@ -17,12 +17,15 @@ import { QueueModule } from './queue/queue.module'
 import { BullImplModule } from './bull-impl/bull-impl.module'
 import { StoryModule } from './story/story.module'
 import { ChatModule } from './chat/chat.module'
+import { ContestModule } from './contest/contest.module'
 import mailConfig from './config/mail.config'
 import queueConfig from './config/queue.config'
+import { ScheduleModule } from '@nestjs/schedule'
 
 @Module({
   imports: [
     ConfigModule.forRoot({ load: [databaseConfig, secretConfig, mailConfig, queueConfig], isGlobal: true }),
+    ScheduleModule.forRoot(),
     DatabaseModule,
     WinstonLoggerModule,
     AuthModule,
@@ -33,7 +36,8 @@ import queueConfig from './config/queue.config'
     QueueModule,
     BullImplModule,
     StoryModule,
-    ChatModule
+    ChatModule,
+    ContestModule
   ],
   controllers: [AppController],
   providers: [
