@@ -26,6 +26,14 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+For the boot up you will need a running redis -for caching and queue purposes,
+A mongo DB for Logging
+A postgreSQL for general purpose data store,
+An AWS account and dedicated S3 storage for the Image, video and audio recording,
+A mailgun account for sending emails,
+An AWS account and dedicated Pinpoint service to send OTP messages for registrations.
+The dedicated Docker-file for test and prod are in root of the project for the builds and deploy.
+
 ## Installation
 
 ```bash
