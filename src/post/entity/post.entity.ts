@@ -4,13 +4,14 @@ import { User } from 'src/auth/user/entity/user.entity'
 import { BaseEntity } from 'src/sdk/entity/base.entity'
 import { PostTypes } from 'src/util/enums'
 import { LanguageNames } from 'src/util/languages'
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany } from 'typeorm'
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne } from 'typeorm'
 import { PostHighlight } from '../post-highlight/entity/post-highlight.entity'
 import { PostLike } from '../post-like/entity/post-like.entity'
 import { PostRepost } from '../post-repost/entity/post-repost.entity'
 import { PostView } from '../post-view/entity/post-view.entity'
 import { PostComment } from '../post-comment/entity/post-comment.entity'
 import { UserReferenceDto } from 'src/auth/user/dto/user-reference-dto'
+import { ContestPost } from 'src/contest/entity/contest-post.entity'
 
 @Entity()
 export class Post extends BaseEntity {
@@ -45,7 +46,6 @@ export class Post extends BaseEntity {
   @IsEnum(LanguageNames)
   @Column({ nullable: true, enum: LanguageNames })
   @ApiProperty({ enum: LanguageNames, nullable: true })
-  @IsEnum(LanguageNames)
   language: LanguageNames
 
   @Column({ nullable: true })
@@ -117,6 +117,10 @@ export class Post extends BaseEntity {
   @OneToMany(() => PostRepost, 'post')
   @ApiHideProperty()
   reposts: PostRepost[]
+
+  @OneToOne(() => ContestPost, (contestPost) => contestPost.post, { eager: true, cascade: true })
+  @ApiProperty({ type: ContestPost, nullable: true })
+  contestPost: ContestPost
 
   likeCount: number
 
