@@ -9,7 +9,8 @@ An AWS account and dedicated S3 storage for the Image, video and audio recording
 A mailgun account for sending emails,   
 An AWS account and dedicated Pinpoint service to send OTP messages for registrations.  
 The dedicated Docker-file for test and prod are in root of the project for the builds and deploy.  
-There is a dedicated Github action that binded to pushing of tags that automatically builds and sends the image to the docker-hub. please set up your docker user and password accordingly.  
+There is a dedicated Github action that binded to pushing of tags that automatically builds and sends the image to the docker-hub.  
+Please set up your docker user and password accordingly.  
 
 ## Installation
 
